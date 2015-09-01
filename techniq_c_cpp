@@ -1,0 +1,257 @@
+*************** operator precedence in C
+() [] -> .			        left to right
+! ~ ++ -- + - * (type) sizeof	 	right to left
+* / %					left to right
++ -					left to right
+<< >>					left to right
+< <= > >=				left to right
+== !=					left to right
+&					left to right
+^					left to right
+|					left to right
+&&					left to right
+||					left to right
+?:					right to left
+= += -= *= /= %= &= ^= |= <<= >>=	right to left
+,					left to right
+
+remember:
+
+**ASRBLTA*
+RUASRBLTAC
+-R-----RR-
+
+**************
+extern storage class in the following declaration,
+                       		extern int i;
+specifies to the compiler that the memory for i is allocated in some other program and that address will be given to the current program at the time of linking. But linker finds that no other variable of name i is available in any other program with memory space allocated for it. Hence a linker error has occurred .
+
+**********
+The default case can be placed anywhere inside the switch. It is executed only when all other cases doesn't match.
+
+**********
+int c=--2;
+Here unary minus (or negation) operator is used twice. Same maths  rules applies, ie. minus * minus= plus.
+However you cannot give like --2. Because -- operator can  only be applied to variables as a decrement operator (eg., i--). 2 is a constant and not a variable. It gives lvalue required error.
+
+*********
+int arr[] = {0,1,2,3}
+int * ptr = arr;
+printf("\n%lu %lu %lu %lu", parr, parr+1, parr+2, parr+3);
+printf("\n%lu %lu %lu %lu", arr, arr+1, arr+2, arr+3 );
+
+100 104 108 112
+100 104 108 112
+
+or 
+printf("[%lu:%c] [%lu:%c] [%lu:%c] [%lu:%c]", carr, *carr, carr+1, *(carr+1), carr+2,*(carr+2),  carr+3, *(carr+3) );
+printf("[%lu:%c] [%lu:%c] [%lu:%c] [%lu:%c]", cptr, *(cptr), cptr+1,*(cptr+1),  cptr+2,*(cptr+2),  cptr+3, *(cptr+3) );
+		
+understand pointer is to what? here arr works as pointer to int. incrementing means incrementing by sizeof int
+second, pointer is pointer whether its pointer to char, int, double its will be of same size on a machine.
+
+int **pparr = &parr;
+printf("\n%lu %lu %lu", pparr, pparr+1, pparr+2);
+
+1000 1008 1016 
+
+because pparr is pointer "to pointer" and sizeof pointer is 8
+it doesn't matter what it is pointing to right now, eg: 
+
+int **pparr = &arr;
+printf("\n%lu %lu %lu", pparr, pparr+1, pparr+2);
+
+100 108 116 
+
+so i think, pointer is incremented/decremented by sizeof() datatype it is pointing to. if it points to char it increments by 1, if points to int increments by sizeof(int), similar for float, doubles etc.
+now **pparr is points to pointer which is of size 8, so difference of 8.
+
+
+
+increment/decrement work the same way
+
+but subtraction of two pointers doesn't give number of bytes in between; but number of bytes/sizeof datatype pointer point to.
+eg: 
+int a, b; //0 4
+int *pa, *pb;
+
+pb - pa; // 4/sizeof( int ) 
+
+int *ppa, *ppb;
+ppb - ppa; // 8/sizeof( int* ) 
+
+compiler gives error if we subtract pointers of different types. eg error is thrown for ppint - pint. although looks like just subtraction of two addresses.
+
+*********
+char  carr[20] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm' };
+char *cptr = carr;
+
+cout << *cptr << *carr; // a a
+cptr++ allowed but carr++, &carr++ is not allowed
+
+
+imp diff is that sizeof( carr ) : 20 but sizeof( cptr ): 8
+**********
+ static int  a[ ]   = {0,1,2,3,4};
+ int  *p[ ] = {a,a+1,a+2,a+3,a+4};
+ int  **ptr =  p;
+ ptr++;
+ printf(“\n %d  %d  %d”, ptr-p, *ptr-a, **ptr); 
+ *ptr++;
+ printf(“\n %d  %d  %d”, ptr-p, *ptr-a, **ptr); 
+ *++ptr;
+ printf(“\n %d  %d  %d”, ptr-p, *ptr-a, **ptr); 
+ ++*ptr;
+ printf(“\n %d  %d  %d”, ptr-p, *ptr-a, **ptr); 
+ 
+ output: 1 1 1
+         2 2 2
+         3 3 3
+         3 4 4
+         
+important point to notice is that when pointer to an array is incremented it points to next location in array NOT to address just after end of array. AND ptr-arr gives difference in integral multiple of " sizeof(type) ". eg: ptr-p gives 1 not 4.
+
+********** c++ / cpp ******
+
+C++ non-virtual function calls are resolved at compile time with static binding, while virtual function calls are resolved at run time with dynamic binding.
+
+***** name hiding
+class A{
+virtual funA( i )     { print i }
+virtual funA( i, j )  { print i, j } 
+
+}
+
+class B{
+funA( i )    { print B[i] }  
+}
+
+main( ){
+B b;
+b.funA( 1 );     // works
+b.funA( 1, 1 );  //DOES NOT wors
+}
+
+the second call won’t work, since the two-parameter MethodA is not visible. That
+is name hiding.
+
+***** why destructors in base calass are virutal
+Calling a method with an object pointer always invokes:
+»» the most derived class function, if a method is virtual.
+»» the function implementation corresponding to the object pointer type (used to call the method), if a method is non-virtual.
+
+But, if we call delete on a base pointer which points to a derived class object, the base class
+destructor gets called first (for non-virtual function). For example:
+	
+ class Base {
+ public:
+ Base() { cout << “Base Constructor “ << endl;
+ }
+ 	
+ ~Base() { cout << “Base Destructor “ << endl;
+ } /* see below */
+ };
+	
+ class Derived: public Base {
+
+ public:
+ Derived() { cout << ”Derived Constructor “ <<
+ endl; }
+ 
+ ~Derived() { cout << ”Derived Destructor “ <<
+ endl; }
+ };
+	
+ void main() {
+ Base *p = new Derived();
+ delete p;
+ }
+ 
+Output:
+Base Constructor
+Derived Constructor
+Base Destructor
+
+If we declare the base class destructor as virtual, this makes all the derived class destructors virtual as well.If we replace the above destructor with:
+	
+ virtual ~Base() {
+ cout << “Base Destructor” << endl;
+ }
+
+Then the output becomes:
+Base Constructor
+Derived Constructor
+Derived Destructor
+Base Destructor
+
+
+So we should use virtual destructors if we call delete on a base class pointer which points to a derived class.
+
+
+memory arch of C program:
+
+1) command line args and env variables
+2) stack ( functions and its vars )
+.
+.
+.
+3) heap ( dynamically allocated mem )
+4) uninitialised data ( bss; contains global, static vars which are not initialised to some value; init to zero )
+5) initialised data( global and static vars which are init to some value, both has RO, RW area)
+6) text ( or code segment read only generally )
+
+****
+define in c
+
+#define in c should be defined before the function or statement it is being used otherwise preprocessor won't replace them and later compiler or linker will throw errors
+
+in #define statements consider # as stringize operator which converts identifier names into strings, ## as concatenation operator which joins identifier names
+
+**** STL in c++ ****
+A container is a holder object that stores a collection of other objects (its elements). They are implemented as class templates, which allows a great flexibility in the types supported as elements. eg: vector, list
+containers can be:
+1) sequence container: array, vector, list, forward_list, deque
+2) ordered associative container: map, multimap, set, multiset
+3) Unordered associative container: unordered_map, unordered_multimap, unordered_set, unordered_multiset
+
+Container adaptors are not full container classes, but classes that provide a specific interface relying on an object of one of the container classes. eg: stack, queue, priority_queue : they can use any container for storage like ( list, vector )
+
+array: just a wrapper over array
+vector: expandable arrays but are contiguously allocated, push/pop_back, [] allowed
+deque: diff libs use diff approaches, some use dynamic array to expand at both ends, push/pop _back/_front, [] allowed, 
+		bad if insertion/deletion occurs other than at ends
+forward_list: single linked list, insertion/extraction/moving of elements anywhere is efficient, push/pop _front, no []		 
+list: double linked list, constant time insertion/extraction/deletion, push/pop _front/_back, no []
+
+stack: uses deque by default, can use others as well which provide push/pop_back like vector, list, deque but not forward_list
+queue: uses deque by default, can use others as well which provide push_back, pop_front like list, deque but not forward_list/vector
+priority_queue: uses vector(default), queue with push/pop_back; only DS with random access allowed, calls make_heap, push_heap, pop_heap on this DS
+
+set: implemented as BST
+multiset: implemented as BST
+
+hash_map: not part of stl, but use it if orderting is not important as map keeps elements ordered
+use unordered_map as its c++11 standard
+
+hash_set: not part of stl, but use it if orderting is not important as set keeps elements ordered
+use unordered_set as its c++11 standard
+
+vector initialization :
+vector<int> vi = { 1,2,3}; is not working although it is supported in latest versions
+
+*** using custom comparison fucntion ****
+It should return bool not a positive or negative value. Both (bool)1 and (bool)-1 are true
+so in return use true / false
+
+*** typeof error ***
+while using c++11 ; it gives error for typeof gnuC++ recognizes it
+
+its good to typedef datatype and its iterator before hand
+
+******
+operator overloading
+friend function
+static variables
+exception handling 
+virtual functions
+templatized code

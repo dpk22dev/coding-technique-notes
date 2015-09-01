@@ -1,0 +1,257 @@
+**** normalization ref
+http://holowczak.com/database-normalization/6/#2NF
+
+***** denormalization
+Denormalization is the process of attempting to optimize the performance of a database by
+adding redundant data --> creating materialised view of database
+or by grouping data --> changing logical design by merging two relations carefully and adding additional constraints
+
+sometime read may become faster but write becomes slower.
+A denormalized data model is not the same as a data model that has not been normalized, and denormalization should only take place after a satisfactory level of normalization has taken place and that any required constraints and/or rules have been created to deal with the inherent anomalies in the design.
+
+***** correlated sub query
+When a subquery uses values from outer query, the subquery is called correlated subquery. The correlated subquery is evaluated once for each row processed by the outer query.
+
+SQL Statements that use the SQL EXISTS Condition are very inefficient since the sub-query is RE-RUN for EVERY row in the outer query's table. There are more efficient ways to write most queries, that do not use the SQL EXISTS Condition.
+
+**** foreign key
+A foreign key declaration can always be replaced by an equivalent check assertion in SQL. FALSE
+
+Foreign key simply requires that the value in that field must exist first in a differnt table (the parent table). That is all an FK is by definition.
+
+so it can have null, duplicate values, to make it unique you must define it to be unique. we can use constraints like NOT NULL, UNIQUE on foreign keys.
+
+A FOREIGN KEY constraint does not have to be linked only to a PRIMARY KEY constraint in another table; it can also be defined to reference the columns of a UNIQUE constraint in another table.
+
+**** pair wise compaarison
+WHERE (dept-id, hire-date) IN
+     (SELECT dept-id, MAX(hire-date)
+     
+pairwise comparison is valid in sql     
+     
+**** normalisztion
+1) remove redundancy 
+2) remove insertion anamoly: insertion in a tuple in relation require we must have information from two or more relations
+2) deletion: deletion of a tuple doesn't mean info being lost 
+3) updation anamolies: updating one fact requires us to update multiple relations
+
+eg: 
+PO_HEADER ( PO_NUMBER, po_date, vendor, ship_to ... )
+LINE_ITEMS ( PO_NUMBER, ITEMNUM, part_num, description, price, quantity )
+
+ps: coloumns in caps are keys
+
+if we add some relevant data; we can identify each anamoly in LINE_ITEMS table.
+
+What happens if we want to add the fact that Order O103 has quantity 5 of part P99 ?
+What happens when we delete item I02 from Order O101 ?
+What happens if we want to change the price of the Plate (P99)?
+
+X -> Y means X functionally determines Y; here X is determinent
+given a value of X we can uniquely determine one value for Y
+
+eg: roll_no, course-no, semester -> grade
+
+candidate key -> all other attributes
+we choose key among these candidate keys.
+so a key determines a tuple. 
+thats why Not all determinants are keys.
+
+Domain: The physical (data type, size, NULL values) and semantic (logical) description of what values an attribute can hold.
+
+1NF: 
+each attribute must be single valued; can't use two phone numbers in same coloumn
+all values in attribute must be of same type
+no two tuples can be identical
+order of couloumns, tuples doesn't matter
+
+if we have a key in table we have 1NF.
+
+2NF:
+all non-key attributes are dependent on all key attributes; means no partial dependencies
+
+eg:
+
+STOCKS( company_name, SYMBOL, headquaters, DATE, closed_price )
+its not in 2NF as:
+SYMBOL, DATE -> company_name, headquarters
+but
+SYMBOL -> company_name, headquarters
+
+so divide it in two relations:
+
+COMPANY( company, SYMBOL, headquarters )
+STOCK_PRICES( SYMBOL, DATE, closed_price )
+
+these new relations we can confirm that they meet the definition of 1NF (each one has well defined unique keys) and 2NF (no partial key dependencies).
+
+3NF:
+it must be in 2NF and should not have transitive dependencies
+
+in relation R have attributes A, B, C
+A -> B and B -> C then A -> C
+
+eg:
+course-code -> course-number, section
+course-number, section -> classroom, professor
+
+COMPANY( company, SYMBOL, headquarters )
+SYMBOL -> company
+company -> headquarters
+so 
+SYMBOL -> headquarters
+
+it has transitive dependency; if we remove an entry from COMPANY relation we loose other info as well; 
+eg: 
+oracle ORCL redwood 
+
+if we want to remove oracle from ORCL symbol we loose its headquarter info; practically headquarter info should be dependent on company not on SYMBOL
+
+so we divide in two relations:
+STOCK_SYMBOLS( company, SYMBOL )
+COMPANY_HEADQUARTERS( COMPANY, headquarters)
+
+BCNF:
+if is in 1NF, 2NF, 3NF and every determinant is candidate key
+
+eg: 
+with conditions:
+Funds consist of one or more Investment Types.
+Funds are managed by one or more Managers
+Investment Types can have one more Managers
+Managers only manage one type of investment.
+we have relation:
+FUNDS( fundId, investmentType, manager )
+
+fundId, investmentType -> manager   : determinants act as candidate key
+fundId, manager -> investmentType : determinants act as candidate key
+manager -> investmentType : determinant manager can't act as candidate key as it doesn't determine tuple
+
+it is in 1NF, 2NF, 3NF, but manager is not a candidate key
+
+if we delete one record from FUNDS we loose info about one manager.
+
+so we break into:
+MANAGERS( MANAGER, investmentType )
+FUND_MANAGERS( FUNDID, MANAGER )
+
+4NF:
+if is in BCNF and contains no multivalued dependencies.
+
+multivalued dependency: a type of functional dependency where one determinent can determine more than one value.
+
+formally:
+1) there must be atleast 3 attributes say A, B, C; 
+2) given A ->-> B, A ->-> C
+3) B and C are independent of one another
+
+eg: 
+PORTFOLIO ( portfolioId, stockFund, bondFund )
+portfolioId ->-> stockFund
+portfolioId ->-> bondFund
+
+--> shows multivalued dependency
+
+here all three taken together form key
+latter two are independednt of one another
+insertion anomaly: can not add stock fund without adding bondFund
+
+split PORTFOLIO in two tables:
+PORTFOLIO_STOCKFUND( portfolioId, stockFund )
+PORTFOLIO_BONDFUND( portfolioId, bondFund )
+
+5NF:
+also called "projection Join" normal form
+There are certain conditions under which after decomposing a relation, it cannot be reassembled back into its original form.
+
+Domain key normal form (DKNF):
+we need to consider if relation satisfies every constraint in key and domain.
+
+A relation is in DK/NF if every constraint on the relation is a logical consequence of the definition of keys and domains.
+
+eg:
+CUSTOMER( CUSTID, Name, address, city, state, zip )
+
+CUSTOMER is not in DK/NF as it contains functional dependency 
+zip -> city, state
+
+so split it in:
+CUSTOMER( CUSTID, Name, address, zip )
+ZIPCODES( zip, city, state )
+
+for getting customer address info we need to join with ZIPCODES; sometimes we De-Normalize a table to gain performance so keep the original CUSTOMER table.
+
+**** transaction management
+http://www.eazynotes.com/pages/database-management-system/transaction-management.html
+
+a transaction should follow:
+Atomicity: a transaction is commit or rollback
+Consistency: database before and after transaction is in consistent state, although it may be in inconsistent state during transaction
+Isolation: it should appear to each transaction that it is the only transaction running, its result should be independent of results of other transaction; proper locking mechanism is used for isolation of shared resources among transactions
+
+A ---T1---> B <---T2---- C
+T1 deducts 50 from A and adds in B, T2 deducts 100 from C and adds to B, then B should be locked before reading and writing to provide isolation 
+
+Durability: after commit whatever happens changes made by transaction are permanent
+
+
+If you study carefully, you can understand that Atomicity and Durability is essentially the same thing, just as Consistency and Isolation is essentially the same thing.
+
+six states of transaction:
+1) active: just starting of transaction
+2) partially commited: transaction is in execution and changes made are in volatile state
+3) Failed: Rollback operation starts
+4) aborted: Rollback is completed
+5) commited: transaction complete and changes are durable
+6) terminated: either aborted or commited transaction reaches to this last state
+
+A schedule is a collection of many transactions which is implemented as a unit. Depending upon how these transactions are arranged in within a schedule, a schedule can be of two types:
+
+serial: transaction are executed one after other in non preemptive manner; low efficient, no sharing of resources
+
+concurrent: transaction are executed in pre-emptive time shared method
+
+Serializability:
+When several concurrent transactions are trying to access the same data item, the instructions within these concurrent transactions must be ordered in some way so as there are no problem in accessing and releasing the shared data item.
+two aspect of Serializability are:
+
+conflict Serializability:
+conflict arises if at-least one of instructions is write operation
+1) read - read : no conflict
+2) read - write: read old value, then write new value OR write first then read new value
+3) write - write: write can happen in any order
+
+if there is a schedule S1 consisting of two or more transactions; if we swap the non-conflicting operations and create a new schedule S2; both will give same results; so these schedules are said to be "conflict equivalent"
+
+View Serializability:
+if there is a schedule S1 consisting of transactions T1, T2 we can create another schedule S2 which is view equivalent to S1 and both T1 and T2 want to access same data if:
+
+1) If in S1, T1 reads the initial value of the data item, then in S2 also, T1 should read the initial value of that same data item.
+
+2) If in S1, T1 writes a value in the data item which is read by T2, then in S2 also, T1 should write the value in the data item before T2 reads it.
+
+3) If in S1, T1 performs the final write operation on that data item, then in S2 also, T1 should perform the final write operation on that data item.
+
+Except in these three cases, any alteration can be possible while creating S2 by modifying S1.
+
+
+** diff b/w dbms and rdbms ***
+http://stackoverflow.com/questions/18419137/what-is-the-difference-between-dbms-and-rdbms
+
+*** codd's 12 rules ***
+https://en.wikipedia.org/wiki/Codd%27s_12_rules
+
+it looks like mongoDB is not RDBMS but it is: Neverthelese, NoSQL is still using RDBMS model, therefore it has SQL equivalent in NoSQL operator and it does not really support the need to store document in database.
+
+physical independence means we can change the way data or metadata is stored, but application alwass sees the data in tabular form. that why we can change underlying storage engine in mysql: eg myisam and innodb
+
+
+
+
+
+
+
+
+
+
+

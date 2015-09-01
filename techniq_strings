@@ -1,0 +1,383 @@
+******* prog to check if strings are rotations of each other or not
+temp = str1.str1 // temp is concatenation of str1 with str1
+
+if str2 is substring of temp then it is rotation of str1
+
+because temp contains sliding window that can be obtained by rotation str1
+
+****** finding permutations of given string
+good use of backtracking
+
+void permut( char *str, int i, int j ){
+
+	int p;
+	if( i == j )        
+		printf(" %s \n"str );
+	else{
+		for( p = i; p <= j; p++ ){
+					
+			swap( ( str+i ), ( str+p ) );
+			permut( str, i+1, j );
+			swap( str+i, str+p );
+		}
+	}
+}
+
+note that in main string to be passed should be defined like char str[] = "ABC"; not char *str = "ABC"; because second one gives segmentation fault in swap function. as constant strings can't be modified.
+
+****** generate next higher permutation
+1.Take the previously printed permutation and find the rightmost character in it, which is smaller than its next character. Let us call this character as ‘first character’.
+2. Now find the ceiling of the ‘first character’. Ceiling is the smallest character on right of ‘first character’, which is greater than ‘first character’. Let us call the ceil character as ‘second character’.
+3. Swap the two characters found in above 2 steps.
+4. Sort the substring (in non-decreasing order) after the original index of ‘first character’.
+
+Let us consider the string “ABCDEF”. Let previously printed permutation be “DCFEBA”. The next permutation in sorted order should be “DEABCF”. Let us understand above steps to find next permutation. The ‘first character’ will be ‘C’. The ‘second character’ will be ‘E’. After swapping these two, we get “DEFCBA”. The final step is to sort the substring after the character original index of ‘first character’. Finally, we get “DEABCF”.
+
+void sortedPermutations ( char str[] )
+{
+    int size = strlen(str);
+ 
+    // Sort the string in increasing order using compare function as defined by us
+    qsort( str, size, sizeof( str[0] ), compare );
+ 
+    // Print permutations one by one
+    bool isFinished = false;
+    while ( ! isFinished )
+    {
+        // print this permutation
+        printf ("%s \n", str);
+ 
+        // Find the rightmost character which is smaller than its next
+        // character. Let us call it 'first char'
+        int i;
+        for ( i = size - 2; i >= 0; --i )
+           if (str[i] < str[i+1])
+              break;
+ 
+        // If there is no such chracter, all are sorted in decreasing order,
+        // means we just printed the last permutation and we are done.
+        if ( i == -1 )
+            isFinished = true;
+        else
+        {
+            // Find the ceil of 'first char' in right of first character.
+            // Ceil of a character is the smallest character greater than it
+            int ceilIndex = findCeil( str, str[i], i + 1, size - 1 );
+ 
+            // Swap first and second characters
+            swap( &str[i], &str[ceilIndex] );
+ 
+            // Sort the string on right of 'first char'
+            qsort( str + i + 1, size - i - 1, sizeof(str[0]), compare );
+        }
+    }
+}
+
+******* longest palindromic substring
+use DP: O(n^2) space and time
+The value of table[i][j] is true, if the substring is palindrome, otherwise false. To calculate table[i][j], we first check the value of table[i+1][j-1], if the value is true and str[i] is same as str[j], then we make table[i][j] true. Otherwise, the value of table[i][j] is made false.
+for substring i to j; we check whether substring ( i+1 to j-1 is palindrome && str[i] == str[j] ) then put table[i][j]  = true otherwise put table[i][j] = false
+
+for base condition of length = 1 we put table[i][i] = true;
+for length = 2 we put table[i][i+1] = true if str[i] == str[i+1]
+now we loop from 3 to length of str 
+if length of palindrome is > maxLen then update index, maxLen
+
+second approach is to
+for each ith element as centre of palindrome and check if characters are same in both directions thus decreasing start-index and increasing length. --> odd length palindrome
+similarly for even length palindromes as i-1, i as center points and thus decreasing start-index and increasing length --> even length palindromes
+
+takes O(n^2) time with O(1) space
+
+****** given a sequence of words print all anagrams together
+put words in W array and indexes in I array.
+sort each word in W array.
+now sort W array.
+print elements using I array from orig array of words
+takes O(N*MlogM + M*NlogN)
+
+trie data structure can be used for more efficiency
+1) Create an empty Trie
+2) One by one take all words of input sequence. Do following for each word
+…a) Copy the word to a buffer.
+…b) Sort the buffer
+…c) Insert the sorted buffer and index of this word to Trie. Each leaf node of Trie is head of a Index list. The Index list stores index of words in original sequence. If sorted buffe is already present, we insert index of this word to the index list.
+3) Traverse Trie. While traversing, if you reach a leaf node, traverse the index list. And print all words using the index obtained from Index list.
+
+**** rabin karp algo ****
+takes best time: O(m+n) 
+worst case time: O(mn) when all chars of pattern and text are same
+
+Like the Naive Algorithm, Rabin-Karp algorithm also slides the pattern one by one. But unlike the Naive algorithm, Rabin Karp algorithm matches the hash value of the pattern with the hash value of current substring of text, and if the hash values match then only it starts matching individual characters. 
+
+hash( txt[s+1 .. s+m] ) = d ( hash( txt[s .. s+m-1]) – txt[s]*h  + txt[s + m] ) ) mod q
+
+hash( txt[s .. s+m-1] ) : Hash value at shift s.
+hash( txt[s+1 .. s+m] ) : Hash value at next shift (or shift s+1)
+d: Number of characters in the alphabet eg: 256
+q: A prime number
+h: d^(m-1) ie: pow( d, m-1 )%q
+m: length of pattern string
+n: length of text string
+
+it must ne able to create hash for this window from previous window in O(1) time.
+
+for simplicity lets take decimal number: 54321
+S0 = 5432
+to calculate S1: ( 5432 - 5000 ) * 10 + 1
+( S0 - 5 * 10^3 ) * 10 + 1
+
+here base is 256 instead of 10, 
+using modulo as 256 powers can become huge
+
+// d is the number of characters in input alphabet
+#define d 256 
+  
+/*  pat  -> pattern
+    txt  -> text
+    q    -> A prime number
+*/
+void search(char *pat, char *txt, int q)
+{
+    int M = strlen(pat);
+    int N = strlen(txt);
+    int i, j;
+    int p = 0;  // hash value for pattern
+    int t = 0; // hash value for txt
+    int h = 1;
+  
+    // The value of h would be "pow(d, M-1)%q"
+    for (i = 0; i < M-1; i++)
+        h = (h*d)%q;
+  // similar to 10^3 or d ^ (M-1) used in hash function, modulo is required to keep in integer limit
+  
+  
+  
+    // Calculate the hash value of pattern and first window of text
+    eg: for 54321 and base 10
+    5*0 + 5 = 5
+    5*10 + 4 = 54
+    54*100 + 3 = 543
+    
+    for (i = 0; i < M; i++)
+    {
+        p = (d*p + pat[i])%q;
+        t = (d*t + txt[i])%q;
+    }
+  
+    // Slide the pattern over text one by one 
+    for (i = 0; i <= N - M; i++)
+    {
+        
+        // Chaeck the hash values of current window of text and pattern
+        // If the hash values match then only check for characters on by one
+        // same hash may occur for multiple strings, check for string equality
+        if ( p == t )
+        {
+            /* Check for characters one by one */
+            for (j = 0; j < M; j++)
+            {
+                if (txt[i+j] != pat[j])
+                    break;
+            }
+            if (j == M)  // if p == t and pat[0...M-1] = txt[i, i+1, ...i+M-1]
+            {
+                printf("Pattern found at index %d \n", i);
+            }
+        }
+         
+        // Calulate hash value for next window of text: Remove leading digit, 
+        // add trailing digit           
+        if ( i < N-M )
+        {
+            t = (d*(t - txt[i]*h) + txt[i+M])%q;
+             
+            // We might get negative value of t, converting it to positive
+            eg: 12345: 1234 - 1000// don't know when can they become negative
+            if(t < 0) 
+              t = (t + q); 
+        }
+    }
+}
+
+***** KMP algo *****
+uses degenerating property of pattern and improves efficiency to O(n).
+
+KMP algorithm does some preprocessing over the pattern pat[] and constructs an auxiliary array lps[] of size m (same as size of pattern). For each sub-pattern pat[0…i] where i = 0 to m-1, it calculates the length of maximum matching proper prefix which is also a suffix of the sub-pattern pat[0..i] and stores the value in lps[i].
+
+Unlike the Naive algo where we slide the pattern by one, we use a value from lps[] to decide the next sliding position.
+
+longest proper prefix: is prefix substring excluding string itself
+similar goes for longest proper suffix
+
+void computeLPSArray(char *pat, int M, int *lps)
+{
+    int len = 0;  // lenght of the previous longest prefix suffix
+    int i;
+ 
+    lps[0] = 0; // lps[0] is always 0
+    i = 1;
+ 
+    // the loop calculates lps[i] for i = 1 to M-1
+    while(i < M)
+    {
+       if(pat[i] == pat[len])
+       {
+         len++;
+         lps[i] = len;
+         i++;
+       }
+       else // (pat[i] != pat[len])
+       {
+         if( len != 0 )
+         {
+           // This is tricky. Consider the example AAACAAAA and i = 7.
+           len = lps[len-1];
+ 
+           // Also, note that we do not increment i here
+         }
+         else // if (len == 0)
+         {
+           lps[i] = 0;
+           i++;
+         }
+       }
+    }
+}
+
+and for searching text:
+void KMPSearch(char *pat, char *txt)
+{
+    int M = strlen(pat);
+    int N = strlen(txt);
+ 
+    // create lps[] that will hold the longest prefix suffix values for pattern
+    int *lps = (int *)malloc(sizeof(int)*M);
+    int j  = 0;  // index for pat[]
+ 
+    // Preprocess the pattern (calculate lps[] array)
+    computeLPSArray(pat, M, lps);
+ 
+    int i = 0;  // index for txt[]
+    while(i < N)
+    {
+      if(pat[j] == txt[i])
+      {
+        j++;
+        i++;
+      }
+ 
+      if (j == M)
+      {
+        printf("Found pattern at index %d \n", i-j);
+        j = lps[j-1];
+      }
+ 
+      // mismatch after j matches
+      else if(pat[j] != txt[i])
+      {
+        // Do not match lps[0..lps[j-1]] characters,
+        // they will match anyway
+        if(j != 0)
+         j = lps[j-1];
+        else
+         i = i+1;
+      }
+    }
+    free(lps); // to avoid memory leak
+}
+
+***** length of longest substring without repeating chars *****
+it can be done in O(n^3) by finding all possible length subsets
+
+it can be done in O(n^2) if use start and current pointer; check if char at arr[curr] is somewhere between s and cur-1; then updating length array. it takes O(n) extra space and more complexity.
+
+it can be done in O(n) time if we take visited[256] array, max_len, cur_len variables.
+visited array is initialised to -1. when we encounter a char and get prev_index from visited array; we can find if i - prev_index > cur_len then it can safely be used, so cur_len++;
+
+***** print all lexicographic permutations of a string *****
+we will use two strings, orig and data, we will put each element of original at index in data and print each permutation
+there are n^n permutations possible.
+
+for lexicographical permutations we first need to sort orig string then pass it to function, recursion functions is as follow:
+
+
+void allLexicographicRecur (char *str, char* data, int last, int index)
+{
+    int i, len = strlen(str);
+ 
+    // One by one fix all characters at the given index and recur for the
+    // subsequent indexes
+    for ( i=0; i<len; i++ )
+    {
+        // Fix the ith character at index and if this is not the last index
+        // then recursively call for higher indexes
+        data[index] = str[i] ;
+ 
+        // If this is the last index then print the string stored in data[]
+        if (index == last)
+            printf("%s\n", data);
+        else // Recur for higher indexes
+            allLexicographicRecur (str, data, last, index+1);
+    }
+}
+
+NOTICE: we can put base condition in loop also; if we ensure that it won't go into recursion in base case as we have done by putting allLexicographicRecur() in else block. when we reach last element it puts all str chars at last index and prints all strings.
+
+***** using recursion *****
+there are two methods: we can send string and index of char
+or
+send str+1 //in this case we send pointer which is incremented 
+
+eg: for printing all interleaving strings:
+void printIlsRecur (char *str1, char *str2, char *iStr, int m, int n, int i)
+{
+    // Base case: If all characters of str1 and str2 have been included in
+    // output string, then print the output string
+    if ( m==0 && n ==0 )
+    {
+        printf("%s\n", iStr) ;
+    }
+ 
+    // If some characters of str1 are left to be included, then include the 
+    // first character from the remaining characters and recur for rest
+    if ( m != 0 )
+    {
+        iStr[i] = str1[0];  // here str1[0] works because string pointer points to diff chars in string
+        printIlsRecur (str1 + 1, str2, iStr, m-1, n, i+1);
+    }
+ 
+    // If some characters of str2 are left to be included, then include the 
+    // first character from the remaining characters and recur for rest
+    if ( n != 0 )
+    {
+        iStr[i] = str2[0];
+        printIlsRecur (str1, str2+1, iStr, m, n-1, i+1);
+    }
+}
+
+***** generating lexicographical permutations *****
+
+original recursion method of just looping and swaping each element to first position and doing recursion doesn't work. it takes O( n*n! )
+
+below takes O( n^2 * n! )
+1. Take the previously printed permutation and find the rightmost character in it, which is smaller than its next character. Let us call this character as ‘first character’.
+
+2. Now find the ceiling of the ‘first character’. Ceiling is the smallest character on right of ‘first character’, which is greater than ‘first character’. Let us call the ceil character as ‘second character’.
+
+3. Swap the two characters found in above 2 steps.
+
+4. Sort the substring (in non-decreasing order) after the original index of ‘first character’.
+
+Let us consider the string “ABCDEF”. Let previously printed permutation be “DCFEBA”. The next permutation in sorted order should be “DEABCF”. Let us understand above steps to find next permutation. The ‘first character’ will be ‘C’. The ‘second character’ will be ‘E’. After swapping these two, we get “DEFCBA”. The final step is to sort the substring after the character original index of ‘first character’. Finally, we get “DEABCF”.
+
+we can make it O( n*n! ) by reversing rather than sorting in sterp 4. because after step 3 array is sorted in reverse order.
+
+NOTICE: important point is base condition; we start with all elements in ascending order and finished is set when all elements are in decreasing order. infin
+
+**** 
+when dealing with array of words hashing, tries can be helpful hint
+
+
+
+

@@ -1,0 +1,35 @@
+100 doors puzzle
+
+**** 3 mislabeled jars
+take fruit from mixed one jar 
+
+**** two egg problem with 100 storey
+http://datagenetics.com/blog/july22012/index.html
+
+we neeed to consider worst case here
+check each floor: 100 falls
+binary search: requires 7 eggs to use binary search
+
+best of worst cases is: 
+try with nth floor , n +(n-1) floor add 1 floor  lesser than previous one:
+
+n + n-1 + n-2 + n-3 + .... 1 >= 100 
+so n = 13.65 ~= 14
+
+n:is floor number from which egg is dropped
+
+it is dynamic prog quest if given k floor and e eggs and to find the minimum no of drops reqd
+
+**** it takes 3 days to reach heaven
+
+let avg day spent is x
+x = (1/3)*0 + 1/3(1+x) + 1/3(2+x)
+=> x = 3
+
+***** 1000 bottles and one is poisoned
+it will take 10 prisoner to check the poisoned bottle.
+as 2^10 = 1024
+
+mark each bottle as binary. ith person will take sip from each bottle with ith bit set.
+
+

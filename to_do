@@ -1,0 +1,46 @@
+***** level 1 *****
+design pattern http://www.ibm.com/developerworks/rational/tutorials/ar-designpat1/
+gfg interview questions
+
+
+***** level 2 *****
+try coding interval tree: insertion, deletion, searcch
+tournament tree -- winner tree, loser tree
+what is the use of static and dynamic binding in c++
+print all subsets of size s of given set
+given postorder and inorder traversals create tree
+
+
+
+***** level 3 *****
+How would you choose between Memoization and Tabulation?
+pattern searching algo gfg
+m coloring using recursion
+do finding articulation points in graph quest
+detect articulation points
+bridges in graph in both directed/undirected graph
+how to print eulerian path or tour
+quick notes for graph problems
+does prim works for negative weight edges
+solving maximum bipartite problem
+think about hamiltonian path using backtracking
+find min# of colors needed to color a graph
+how multi-dimension arrays are used in dp
+how to create suffix tree and why it is used
+boyre-moore, finite automata based pattern-seraching gfg
+
+***** level 4 *****
+topcoder tutorials
+start doing questions on topcoder
+
+
+***** level 5 *****
+pattern techniques
+object oriented architectures: http://oodesign.com/
+read books: pragmatic programmer
+learn: haskell and go
+
+***** don't do *****
+keep on revising languages like C,C++,Java
+
+

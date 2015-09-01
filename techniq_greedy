@@ -1,0 +1,31 @@
+Greedy Choice Property: from a local optimum we can reach a global optimum, without having to reconsider the decisions already taken.
+Optimal Substructure Property: the optimal solution to a problem can be determined from the optimal solutions to its subproblems.
+
+********** activity selection 
+important point is to sort activities acc to their finishing time
+now first activity will always be accepted; solution will be build upon this solution
+next activity will be selected whose start time >= finish time of this activity and so on...
+
+********** huffman encoding for sorted input
+orig it takes O( nlogn )
+if input is sorted then it can be done in O( n ) time by using two queues.
+first all elements as empty nodes are put in q1 
+while( !q1.empty and q2.size>1 ){
+	after comparing q1 and q2 take element from them
+}
+now create another node with freq = q1->freq + q2 -> freq and push in q2.
+
+point here is that we are not using priority queue which takes O(nlgn) time instead we are taking two queues and do it in O( n )
+
+********** prim's algo
+A group of edges that connects two set of vertices in a graph is called cut in graph theory.
+
+similar to dijkstra algo
+we update the distance for each node and store node in mstSet and go on adding nodes with min weight key and store their 
+parent node which is helpful in printing info:
+
+printf("%d - %d    %d \n", parent[i], i, graph[i][parent[i]]);
+
+**** Attack ****
+generally we can solve these problems by sorting input and choosing min/max among them, using min/max-heap, 
+sometimes sorting acc to starting point, ending point, interval, sorting both start and end point( min #platforms on station problem )

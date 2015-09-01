@@ -1,0 +1,304 @@
+is there a process stack along with system stack, user stack??
+
+--it depends on operating systems. in linux there is two or more stacks( kernel stack, user stack ). so that user code can't harm kernel code. according to cpu context user functions and variables are stored in user stack; after system call cpu context switches to real mode and operations are done on kernel stack. so, each process has its own kernel + user stack.
+in linux each process has at least single thread. so, each thread has its own user, kernel stack.
+
+
+what is resident set and working set of process
+
+--Resident set is that portion of the process image that is actually in real-memory at a particular instant; rest of memory is in swap space or in the filesystem; Working set is that subset of resident set that is actually needed for execution.
+
+example of rendezvous condittion
+--In N-Buffer system when sender is sending the message to 
+reciever and the buffer is full then at that situation 
+sender and receiver both r blocked untill receiver deliver 
+the message and any buffer slot is free. 
+
+when is process suspended
+-- when process is kicked out of memory then it is suspended.
+
+
+where is inode structure/inode table saved by OS is it made just when OS is loaded
+--A file system relies on data structures about the files, beside the file content. The former is called metadata—data that describes data. Each file is associated with an inode. so this structure is stored on file system.
+
+diff b/w fcntl and ioctl
+-- fcntl(file control) performs operations on open file descriptors. it does some fixed tasks like duplicating fd, get/set owner etc.
+
+ioctl(ip/op control) performs device specific ip/op ops and other ops which can't be done by regular file-system calls.
+
+are regions same as segments
+--regions: A region is a contiguous range of virtual address, for example, 1024 to 6143. In theory, a region can begin at any virtual address and end at any virtual address, but to do anything useful, a region should be page aligned and have a length equal to some whole number of pages. All bytes in a region must have the same protection characteristics (e.g., read-only). Regions are a property of processes, and all the threads in a process see the same regions. Two regions in the same process may not overlap.
+
+segments: A segment is a contiguous collection of bytes named and protected by a capability. Files and swap areas on disk are the most common kinds of segments. Segments can be read and written using system calls that provide the segment's capability, the offset, the number of bytes, the buffer, and the transfer direction. These calls are used for doing traditional I/O operations on files. However, another possibility is mapping segments onto regions but It is not necessary that a segment be exactly the size of its region.
+
+
+what is inside u-area actually
+--In addition to the text, data, and stack segment, the OS also maintains for each process a region called the u area (User Area). The u area contains information specific to the process (e.g. open files, current directory, signal action, accounting information) and a system stack segment for process use. If the process makes a system call (e.g., the system call to write in the function in main ), the stack frame information for the system is stored in the system stack segment. Again, this information is kept by the OS in an area that the process doesn't normally have access to. Thus, if this information is needed, the process must use special system call to access it. Like the process itself, the contents of the u area for the process are paged in and out bye the OS.
+
+do zombie process take physical memory; what resources do they consume
+--When a process ends, all of the memory and resources associated with it are deallocated so they can be used by other processes. However, the process's entry in the process table remains. The parent can read the child's exit status by executing the wait system call, whereupon the zombie is removed.zombie process can't be killed.
+After the zombie is removed, its process identifier (PID) and entry in the process table can then be reused. However, if a parent fails to call wait, the zombie will be left in the process table.
+
+
+how child process copies address space of parent process
+-- it just means that both parent and child have same contents. now child process can put its own program. but in case of copy on write untill any one of them write same address space is shared.
+
+diff b/w fork and vfork
+what BSS actually do
+what is the use of Disk block descriptors, Page frame data table (pfdata), Swap-use table in swapping
+is windows multiuser OS
+why system call involves context switch
+why is windows more prone to viruses
+how is timestamping used in distributed systems for message passing etc.
+
+******* activation record
+in multishared systems. A Reentrant Procedure is one in which multiple users can share a single copy of a program during the same period. Calling program has its own copy of local data. Each execution instance is called activation. It executes the code in the permanent part, but has its own copy of local variables/parameters. The temporary part associated with each activation is the activation record. Generally, the activation record is kept on the stack.
+
+****** safe state
+The set of dispatchable processes is in a safe state if there exists at least one temporal order in which all processes can be run to completion without resulting in a deadlock.
+
+****** arm-stickiness
+If one or a few processes have a high access rate to data on one track of a storage disk, then they may monopolize the device by repeated requests to that track. This generally happens with most common device scheduling algorithms (LIFO, SSTF, C-SCAN, etc). High-density multisurface disks are more likely to be affected by this than low density ones.
+
+****** busy waiting
+The repeated execution of a loop of code while waiting for an event to occur is called busy-waiting.
+
+****** thread scheduling algo
+?	Load Sharing: Processes are not assigned to a particular processor. A global queue of threads is maintained. Each processor, when idle, selects a thread from this queue. Note that load balancing refers to a scheme where work is allocated to processors on a more permanent basis. 
+?	Gang Scheduling: A set of related threads is scheduled to run on a set of processors at the same time, on a 1-to-1 basis. Closely related threads / processes may be scheduled this way to reduce synchronization blocking, and minimize process switching. Group scheduling predated this strategy.
+?	Dedicated processor assignment: Provides implicit scheduling defined by assignment of threads to processors. For the duration of program execution, each program is allocated a set of processors equal in number to the number of threads in the program. Processors are chosen from the available pool.
+?	Dynamic scheduling: The number of thread in a program can be altered during the course of execution.
+
+****** When does the condition 'rendezvous' arise?
+In message passing, it is the condition in which, both, the sender and receiver are blocked until the message is delivered.
+
+***** times
+Seek time is the time required to move the disk arm to the required track. Rotational delay or latency is the time it takes for the beginning of the required sector to reach the head. Sum of seek time (if any) and latency is the access time. Time taken to actually transfer a span of data is transfer time. 
+
+***** semaphore vs monitor
+If a process in a monitor signal and no task is waiting on the condition variable, the signal is lost. So this allows easier program design. Whereas in semaphores, every operation affects the value of the semaphore, so the wait and signal operations should be perfectly balanced in the program.
+
+*****Page swapping or page replacements are called page cannibalizing.
+
+*****layers of window NT
+h/w abstraction layer
+kernel
+subsystems
+system services
+
+***** SMP
+To achieve maximum efficiency and reliability a mode of operation known as symmetric multiprocessing is used. In essence, with SMP any process or threads can be assigned to any processor.
+
+No Windows NT is not so, because its not implemented in object oriented language and the data structures reside within one executive component and are not represented as objects and it does not support object oriented capabilities .
+
+Windows NT uses protection mechanism called rings provides by the process to implement separation between the user mode and kernel mode.
+In Windows NT, executive refers to the operating system code that runs in kernel mode.
+
+****** directory
+A directory is a special file that the kernel maintains. Only kernel modifies directories, but processes can read directories. The contents of a directory are a list of filename and inode number pairs. When new directories are created, kernel makes two entries named '.' (refers to the directory itself) and '..' (refers to parent directory).
+
+***** links
+A link is a second name (not a file) for a file. Links can be used to assign more than one name to a file, but cannot be used to assign a directory more than one name or link filenames on different computers.
+Symbolic link 'is' a file that only contains the name of another file.Operation on the symbolic link is directed to the file pointed by the it.Both the limitations of links are eliminated in symbolic links. 
+Commands for linking files are:
+Link		ln filename1 filename2 
+Symbolic link	ln -s filename1 filename2
+
+inode table keeps the count of how many filenames lead to same inode number. hardlink increases that count but soft link doesn;t. if file is deleted data can still be accessed using hardlink but not so in soft link
+
+***** FIFO
+FIFO are otherwise called as 'named pipes'. FIFO (first-in-first-out) is a special file which is said to be data transient. Once data is read from named pipe, it cannot be read again. Also, data can be read only in the order written. It is used in interprocess communication where a process writes to one end of the pipe (producer) and the other reads from the other end (consumer).
+mknod is used to create special files, FIFO etc.
+
+***** zombie
+When a program forks and the child finishes before the parent, the kernel still keeps some of its information about the child in case the parent might need it - for example, the parent may need to check the child's exit status. To be able to get this information, the parent calls `wait()'; In the interval between the child terminating and the parent calling `wait()', the child is said to be a `zombie' (If you do `ps', the child will have a `Z' in its status field to indicate this.)
+
+***** swapping and demand paging
+Historic Unix uses Swapping – entire process is transferred to the main memory from the swap device, whereas the Unix System V uses Demand Paging – only the part of the process is moved to the main memory. Historic Unix uses one Swap Device and Unix System V allow multiple Swap Devices. Kernel follows Round Robin scheme choosing a swap device among the multiple swap devices in Unix System V.
+
+***** regions
+A Region is a continuous area of a process’s address space (such as text, data and stack). The kernel has a ‘Region Table’ that is local to the process maintains region. Regions are sharable among the process.
+
+***** u-area (user area) or u-block
+This contains the private data that is manipulated only by the Kernel. This is local to the Process, i.e. each process is allocated a u-area.
+
+***** what is swapped when process is swapped out of memory
+All memory space occupied by the process, process’s u-area, and Kernel stack are swapped out, theoretically.
+Practically, if the process’s u-area contains the Address Translation Tables for the process then Kernel implementations do not swap the u-area.
+
+***** Fork swap
+When the parent process calls fork() system call, the child process is created and if there is short of memory then the child process is sent to the read-to-run state in the swap device, and return to the user state without swapping the parent process. When the memory will be available the child process will be swapped into the main memory.
+
+***** expansion swap
+if process requires more memory than it is currently using; the Kernel performs Expansion swap. To do this Kernel reserves enough space in the swap device.At last Kernel swaps the process into the assigned space in the swap device.  Later when the Kernel swaps the process into the main memory this assigns memory according to the new address translation mapping.
+
+zombie process, processes locked in memory are not swapped by swapper. sleeping processes are more likely to be swapped out.
+
+***** conditions for a machine to support Demand Paging
+Memory architecture must based on Pages, 
+The machine must support the ‘restartable’ instructions.
+
+***** working set
+The set of pages that are referred by the process in the last ‘n’, references, where ‘n’ is called the window of the working set of the process.
+
+***** data structures used by kernel for demand paging
+Kernel contains 4 data structures for Demand paging. They are,
+Page table entries,
+Disk block descriptors,
+Page frame data table (pfdata),
+Swap-use table.
+
+***** What is BSS(Block Started by Symbol)
+	A data representation at the machine level, that has initial values when a program starts and tells about how much space the kernel allocates for the un-initialized data. Kernel initializes it to zero at run-time.
+
+***** page-stealer process
+This is the Kernel process that makes rooms for the incoming pages, by swapping the memory pages that are not the part of the working set of a process. Page-Stealer is created by the Kernel at the system initialization and invokes it throughout the lifetime of the system. Kernel locks a region when a process faults on a page in the region, so that page stealer cannot steal the page, which is being faulted in.
+
+***** diff b/w fault handlers and interrupt handlers
+Fault handlers are also an interrupt handler with an exception that the interrupt handlers cannot sleep. Fault handlers sleep in the context of the process that caused the memory fault. The fault refers to the running process and no arbitrary processes are put to sleep.
+
+***** page fault types:
+validation fault: process tries to access page whose valid bit is not set as it was swapped out of memory
+protection fault: process trying to access a page on which it doesn't have permission. eg: writing to copy-on-write page after fork()
+validation page fault check is done first then protection page fault.
+
+The page stealer and the fault handler thrash because of the shortage of the memory. If the sum of the working sets of all processes is greater that the physical memory then the fault handler will usually sleep because it cannot allocate pages for a process. This results in the reduction of the system throughput because Kernel spends too much time in overhead, rearranging the memory in the frantic pace. 
+
+****** how to make sure that a process doesn't access unauthorised part of stack
+With GCC, you can use -fstack-protector-all.
+ In the Win32 API, you’d use the Virtu- alProtect API to mark the page PAGE_READONLY or PAGE_NOACCESS. This will cause the code accessing the region to go through an exception on access to the specific section of the stack.
+use sandboxed language like java, c#/.NET
+
+****** states of a process( wiki )
+
+states of a process could be in running and not-running state, but we have to distinguish between waiting for an event and process sweeped out due to timeout and waiting for its turn, thats why 5 state model
+
+created    			terminated
+
+
+		running
+										in main memory
+waiting				blocked
+
+
+swapped out			swapped out			in page file/swap space
+and waiting			and blocked
+
+***** forking a child process
+after the fork, the two processes, the parent and the child, have the same memory image, the same environment strings and the same open files. After a process is created, both the parent and child have their own distinct address space. If either process changes a word in its address space, the change is not visible to the other process.
+
+***** process and threads
+Despite of the fact that a thread must execute in process, the process and its associated threads are different concept. Processes are used to group resources together and threads are the entities scheduled for execution on the CPU.
+
+In OS language tasks are sequence of execution which are done by threads.
+
+thread has its own stack, program counter and register set.
+
+***** address in child and parent after fork
+if (fork() == 0)
+{ a = a + 5; printf(“%d,%d\n”, a, &a); }
+else { a = a –5; printf(“%d, %d\n”, a, &a); } 
+
+here both parent and child print the same address. The physical addresses of ‘a’ in parent and child must be different.but The child process gets an exact copy of parent process and virtual address of ‘a’ doesn’t change in child process. 
+
+***** producer / consumer prob
+when using circular buffer its not easy to use all n fields of buffer. using only in/out should be carefull. we can't just use in = out => no op.
+we start with in = out = 0
+
+in producer we check if (in+1)mod n = out noop;
+then we put data in buffer[in] <- data
+
+eg:( producer )
+repeat
+	...
+	produce an item in nextp
+	...
+	while in+1 mod n = out do noop;
+		buffer[in] := nextp;
+		in := in+1 mod n;
+until false;
+
+eg(consumer):
+repeat
+	while in = out do noop; // here we can use in = out but not in producer
+		nextc := buffer[out] ;
+		out:= out+1 mod n;
+		...
+		consume the next item in nextc
+...
+until false
+
+IF we want to use all n buffers we need counter shared variable and need careful reading/updation of it.
+
+requirements for solution to critical-section problem:
+MPheeBy => MPB
+
+Progress:
+If no process is executing in its critical section and there exists some processes that wish to enter their critical section, then the selection of the processes that will enter the critical section next cannot be postponed indefinitely.
+
+Bounded-Waiting:
+A bound must exist on the number of times that other processes are allowed to enter their critical sections after a process has made a request to enter its critical section and before that request is granted.
+
+why we need block and resume in wait and signal:
+all sysnchronisation involve waiting.
+Busy waiting: as lock is acquired by another process current process is waiting so wastes CPU cycles. better if we make this process sleep.
+in case of threads if PRIORITY INVERSION can cause problems. eg: if busy-waiting thread has higher priority than thread holding lock => no PROGRESS.
+
+***** difference b/w mutex and semaphore
+mutex -> mutual exclusion 
+Used to protect shared resource. A Mutex semaphore is "owned" by the task that takes it. If Task B attempts to semGive a mutex currently held by Task A, Task B's call will return an error and fail.
+if task A holds the mutex then only A can release it.
+
+
+semaphore say binary semaphore address different question. eg: task B is pending waiting for something to happen( interupt from sensor ). when notified task B should do some work and go back to waiting.
+
+any other task can signal on binary semaphore. specifically in case of counting semaphore multiple tasks can signal.
+however binary semaphore can be used in place of mutex; i think.
+
+explanation gfg:
+Strictly speaking, a mutex is locking mechanism used to synchronize access to a resource. Only one task (can be a thread or process based on OS abstraction) can acquire the mutex. It means there will be ownership associated with mutex, and only the owner can release the lock (mutex).
+
+Semaphore is signaling mechanism (“I am done, you can carry on” kind of signal). For example, if you are listening songs (assume it as one task) on your mobile and at the same time your friend called you, an interrupt will be triggered upon which an interrupt service routine (ISR) will signal the call processing task to wakeup.
+
+
+in producer consumer problem order of wait() is important as it can cause deadlock. but order of signal() is not imp but it might effect scheduling efficiency.
+
+***** reader/writer problem
+var mutex, wrt: semaphore (=1);
+readcount : integer (= 0);
+
+in writer's process:
+wait(wrt);
+	...
+	writing is performed
+	...
+signal(wrt);
+
+
+in reader's process:
+wait(mutex);
+	readcount := readcount +1;
+	if readcount = 1 then wait(wrt);
+signal(mutex);
+
+	...	
+	reading is performed
+	...
+	
+wait(mutex);
+	readcount := readcount - 1;
+	if readcount = 0 then signal(wrt);
+signal(mutex);
+
+
+we will have at most one reader (all other readers will wait on mutex). But once a reader gets in, all waiting readers can (but not necessarily do [why?]) get in ahead of waiting writers. When a writer finishes, if there are waiting readers and writers, either readers or a writer will run.
+
+** diff b/w stack and heap ***
+http://www.programmerinterview.com/index.php/data-structures/difference-between-stack-and-heap/
+
+
+
+
+
+
+

@@ -1,0 +1,283 @@
+************* dp theory
+
+given problem can be solved using Dynamic programming if:
+1) Overlapping Subproblems
+2) Optimal Substructure
+
+1) Overlapping Subproblems
+--------------------------
+eg: fibonacci numbers
+    but not binary search beacuse no overlapping subproblems are there
+
+in dp we store solution for subproblems and use these. for storage we use:
+1) Memoization( top down ) is similar to the recursive version with a small modification that it looks into a lookup table before computing solutions.
+We initialize a lookup array with all initial values as NIL. Whenever we need solution to a subproblem, we first look into the lookup table.
+if value in table --> use it
+else compute and put value in table for reuse --> use it
+
+2) Tabulation( bottom up ):
+for a given problem builds a table in bottom up fashion and returns the last entry from table.
+
+
+In Memoized version, table is filled on demand while in tabulated version, starting from the first entry, all entries are filled one by one. Unlike the tabulated version, all entries of the lookup table are not necessarily filled in memoized version. memoized solution of LCS problem doesn’t necessarily fill all entries.
+
+2) optimal substructre
+----------------------
+A given problems has Optimal Substructure Property if optimal solution of the given problem can be obtained by using optimal solutions of its subproblems.
+
+eg: shortest path problem; 
+	but longest path b/w two vertices can't be found using dp because optical substructure is not there
+
+***** acc to TC
+think about states
+
+there is recurrent relation, which makes a connection between a lower and a greater state. we must first find how to define a "state" which represents a sub-problem and thus we have to find a solution for it. Note that in "most cases" the states rely on lower states and are independent from greater states. 
+
+we need multiway two dimensional matrix when  only 2D matrix is not sufficient for storing solution; 
+eg: given knight what are total # of possible ways of going from (sx,sy) to (ex,ey)
+
+if we take only single 2D array we are confused what should be incremented first; we can't retain previous value. so we make 3D array.
+
+ways[nx][ny][i] += ways[x][y][i-1];
+
+
+try to write recursive function
+then memoize it
+
+
+
+************* kadane's algo
+kadane's algo and its variations is used in many cases:
+Initialize:
+    max_so_far = 0
+    max_ending_here = 0
+
+Loop for each element of the array
+  (a) max_ending_here = max_ending_here + a[i]
+  (b) if(max_ending_here < 0)
+            max_ending_here = 0
+  (c) if(max_so_far < max_ending_here)
+            max_so_far = max_ending_here
+return max_so_far
+
+************* next ugly no
+to find: say 150th ugly no( having only prime factors 2,3 or 5)
+
+ugly[150]
+
+each new no will be multiple of prev #s with 2, 3 or 5; to put in a sequence we find min of these and increment the index2, index3, index5 for these #s. so solution is built upon current solution but we need to find the min and put in solution...
+
+don't consider 
+at first we may think we just keep on multiplying 2,3,5
+making 3 queues of mulitiple of 2,3,5 and merging into array, it will take more time or
+creating heap will take O(n^2) time
+
+secondly we can just multiply 1,2,3,4,5,6,7 with 2,3,5 and keep on getting minimum to fill in array but 7*2 is not ugly number
+
+solution is to remember it as dynamic programming solution
+create ugly[], i2,i3,i5 as index, mi2, mi3, mi5 as multiple of 2,3,5 from indices
+we get minimum, put value in array and increment corresponding index 
+
+************* max size sub-matrix
+
+1) Construct a sum matrix S[R][C] for the given M[R][C].
+a)	Copy first row and first columns as it is from M[][] to S[][]
+ b)	For other entries, use following expressions to construct S[][]
+     If M[i][j] is 1 then
+            S[i][j] = min(S[i][j-1], S[i-1][j], S[i-1][j-1]) + 1
+     Else /*If M[i][j] is 0*/
+            S[i][j] = 0
+2) Find the maximum entry in S[R][C]
+3) Using the value and coordinates of maximum entry in S[i], print sub-matrix of M[][]
+
+************* fibonacci numbers
+below takes O(n):
+-     -       -           -  
+| 1 1 | ^ n = | Fn+1 Fn   |
+| 1 0 |       | Fn   Fn-1 | 
+-     -       -           - 
+
+very good optimization can be applied: x^n = x^(n/2) * x^(n/2)
+
+F = power( M, n/2 );
+so power( M, n ) =	multiply( F, F );
+
+Now it takes O(logn)
+
+************* mistakes done in memoization for example in coin problem
+
+first of all make sure what you want to send in recursive function; if you are sending number which is size of other array remember to subtract 1 from this number while indexing to that array in recursive function.
+
+for example we are sending size of array and sum to make to recursive function:
+
+    int m = sizeof(arr)/sizeof(arr[0]);
+    printf("%d\n", count( m, SUM));
+
+we need to subtract 1 from it while referencing as done with arr[m-1]
+    b = count( m, n - arr[m-1] );	
+
+sometime we forget to check that we are indexing right value from array. for example below gives weired answers:
+
+	if( cnt[m-1][n] == -1 )
+		a = count( m-1, n);
+	else 
+		a = cnt[m-1][n];
+
+because we are indexing cnt with index m-1 which can be negative. although we make check in recursive function starting but while taking value from memoization array we need to do check on indexing as below:
+
+	if( cnt[m-1][n] == -1 )
+		a = count( m-1, n);
+	else if( m-1 >= 0 ) 
+		a = cnt[m-1][n];
+	else
+        a = count( m-1, n);
+
+************* optimal binary search tree
+
+optCost(i,j) = sum( freq(k) ) for k=i:j + min( optCost(i,r-1) + optCost(r+1, j) ) for r=i:j
+
+important point to notice is that we have to add freq "level" times. so in recursive function we don't just use
+optCost(i,r-1) + optCost(r+1, j) + freq[r] for r=i:j
+
+because we have to add freq "level" times. so we use
+
+fsum = sum( i, j );
+
+then find minimum of 
+optCost( i, r-1) + optCost( r+1, j)  for r=i:j in min
+
+return fsum + min
+
+during tabular iterative solution:
+l represents legth of string/array which is used to calculate upper limit on i and vcalulate value of j.
+
+a	ab	abc
+-	b	bc
+-	-	c
+
+
+for( l = 2; l <= n; l++ ){
+
+	for( i = 0; i < n-l+1; i++ ){
+		j = i+l-1;
+		now do stuff like below:
+		for (int r=i; r<=j; r++)
+            {
+               // c = cost when keys[r] becomes root of this subtree
+               int c = ((r > i)? cost[i][r-1]:0) + 
+                       ((r < j)? cost[r+1][j]:0) + 
+                       sum(freq, i, j);
+               if (c < cost[i][j])
+                  cost[i][j] = c;
+            }
+	}
+}
+
+***** storage is not always necessary
+when we start DP think about states that can be acheived. eg: min # of coins needed to make sum S
+
+sum i [1,S] can be made using j [0,n-1] coins ; so states are like 2D array of Sxn. but we don't need to store them always we can make our work using few variables. Just 1D array is enough
+
+we take 1D array Min what we are doing is reusing this Min array for sum i untill we reach S. we dont need 2D array because we keep on updating in same array; if minimum # of coins needed to create sum i change.
+
+***** matrix chain multiplication
+
+recursice solution:
+// Matrix Ai has dimension p[i-1] x p[i] for i = 1..n
+int MatrixChainOrder(int p[], int i, int j)
+{
+    if(i == j)
+        return 0;
+    int k;
+    int min = INT_MAX;
+    int count;
+ 
+    // place parenthesis at different places between first and last matrix,
+    // recursively calculate count of multiplcations for each parenthesis 
+    // placement and return the minimum count
+    for (k = i; k <j; k++)
+    {
+        count = MatrixChainOrder(p, i, k) +
+                MatrixChainOrder(p, k+1, j) +
+                p[i-1]*p[k]*p[j];
+ 
+        if (count < min)
+            min = count;
+    }
+ 
+    // Return minimum count
+    return min;
+}
+
+k iterates over elements of p; don't confuse that we have broken matrix and its not possible; for eg if its 3 it means that it has A[1x3] and B[3x4] etc..
+
+DP solution:
+// Matrix Ai has dimension p[i-1] x p[i] for i = 1..n
+int MatrixChainOrder(int p[], int n)
+{
+ 
+    /* For simplicity of the program, one extra row and one extra column are
+       allocated in m[][].  0th row and 0th column of m[][] are not used */
+    int m[n][n];
+ 
+    int i, j, k, L, q;
+ 
+    /* m[i,j] = Minimum number of scalar multiplications needed to compute
+       the matrix A[i]A[i+1]...A[j] = A[i..j] where dimention of A[i] is
+       p[i-1] x p[i] */
+ 
+    // cost is zero when multiplying one matrix.
+    for (i = 1; i < n; i++)
+        m[i][i] = 0;
+ 
+    // L is chain length.  
+    for (L=2; L<n; L++)   
+    {
+        for (i=1; i<=n-L+1; i++)
+        {
+            j = i+L-1;
+            m[i][j] = INT_MAX;
+            for (k=i; k<=j-1; k++)
+            {
+                // q = cost/scalar multiplications
+                q = m[i][k] + m[k+1][j] + p[i-1]*p[k]*p[j];
+                if (q < m[i][j])
+                    m[i][j] = q;
+            }
+        }
+    }
+ 
+    return m[1][n-1];
+}
+
+NOTE: consider it as pattern matching in text; L defines different sizes of pattern; i defines start index; j defines its end index; k defines places where we have to put brace; we just find a position wherre multiplication cost is min.
+
+**** lcs ***
+sometimes we may be prompted to think:
+max3( 1 + lcs(X, Y, m-1, n-1), lcs(X, Y, m, n-1), lcs(X, Y, m-1, n) ) but it doesn't work
+we have to consider last character only when they match
+
+*** LIS ***
+can be solved in O(n^2) but optimally in O( nlogn ) time
+it can be used as base algo in various problems eg:
+http://www.geeksforgeeks.org/dynamic-programming-set-14-variations-of-lis/
+
+**** keypad problem ***
+http://www.geeksforgeeks.org/mobile-numeric-keypad-problem/
+it can be solved in various ways but its O(n) as n varies not the keypad keys
+
+*** optimal cost BST ***
+we are not creating BST in this case, so passing value on level wise is not feasible
+during recursive solution, we can sum all the elements at l1, because we already have cost of elements at l2( and lower ), if we add all elements at l1, its like adding l2*2 + l1
+http://www.geeksforgeeks.org/dynamic-programming-set-24-optimal-binary-search-tree/
+
+*** max sum rectable in 2D matrix ***
+although it looks like we can divide it into subproblem with top-left corner, up, left and add coloum and row to them to get max at current point( as we do in shortest path matrix) but it doesn't work that way i guess
+
+second we think can apply kadane; fix left at 0 coloumn and move right to n; for each interval get sum of each row and apply kadane on sum array : looks like it can be done in O(n^2), but i guess it too won't work as for interval i we get max for( R1, R2), for interval i+1 we get max for (R3, R4) but based on intersection of rows previous is not subproblem of current one
+
+so we use brute force for each interval and get max sum row using kadane, keeping track of max sum row interval for each coloumn interval => O(n^3)
+
+
+
+

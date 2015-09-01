@@ -1,0 +1,869 @@
+harsh suryanarayana: humblefool red    RIP
+surendra meena: 	 ron		blue
+tasneem khan:		 rockaustin2k6 blue
+
+
+***** constraints in tc
+in TopCoder competitions even around 100 millions sets of simple operations are allowed
+
+sometimes dfs can give stack overflow so use bfs instead if possible as in case of flood-fill
+
+use backtracing or bruteforce when N <= 20
+
+recursion is very good tool
+in recursion some time we have to limit the recursion, use symmetry cases whcih can be stored as results in map, etc
+
+for using DP N should neither be too nor too high. N around or greater than 30 indicates DP
+
+for simplex algo: find optimal cost for a set; you will be given cost of different sets
+
+***** majority vote algo 
+finds if there is a majority element in given array of elements
+we have two vars: element, counter
+
+if arr[i] == element
+   counter++
+else
+	if counter == 0{
+		element = arr[i];
+		counter  = 1;
+	}else{
+		counter++; // i don't think we should increment it
+	}
+
+suppose if we have to make disjoint pairs form n numbers:	
+while making pairs from n if any number is repeating more than n/2 times it is majority element and reduces the pairs count
+
+xxxx
+????
+
+xxxx
+xx??
+
+xxxxx
+????
+
+xxxxx
+x???	
+	
+considering above cases we can derive formula that:
+if majority is not there return n/2
+else return floor(n/2) - ( c - ceil(n/2) )
+
+where c is count of majority element
+
+***** when we have to find if elements is in char array
+
+int solution_mask = 0;
+ for (int i = 0; i < 4; ++i) {
+	 solution_mask |= 1 << (1 + arr[i] - ‘A’);
+ }
+
+bit is set at that position.
+
+to check weather char was present in arr:
+(solution_mask & (1 << (1 + guess[i] - ‘A’))
+
+***** convert number to string [0-99999]
+
+we need to divide numbers properly
+1,2,3,4,5,6,7,8,9
+11,12,13,14,15,16,17,18,19
+10,20,30 40 50 60 70 80 90
+100 1000
+
+	
+
+ // Count number of digits in num.
+ int len = 1;
+ while (Math.pow((double)10, (double)len ) < num) {
+ len++;
+ }
+ 
+ String[] wordarr1 = {“”,”One ”, “Two ”, “Three ”, “Four ”,
+ “Five ”, “Six ”, “Seven ”, “Eight ”,”Nine ”};
+ 
+ String[] wordarr11 = {“”, “Eleven ”, “Twelve ”, “Thirteen ”,
+ “Fourteen ”, “Fifteen ”, “Sixteen ”,
+ “Seventeen ”, “Eighteen ”, “Nineteen ”};
+ 
+ String[] wordarr10 = {“”,”Ten ”, “Twenty ”, “Thirty ”, “Forty ”,
+ “Fifty ”, “Sixty ”, “Seventy ”, “Eighty ”,
+ “Ninety “};
+ 
+ String[] wordarr100 = {“”, “Hundred ”, “Thousand ”};
+	
+if (len > 3 && len % 2 == 0) { 			
+	 len++; 		
+ }
+
+do{
+ if( len > 3 ){
+ 	take care of first two digits
+ 	be careful about eleven....
+ }
+ 
+ len -= 2;
+}while(len > 0)
+
+****** useful 
+ −min(a,b)=max(−a,−b) and c+max(a,b)=max(c+a,c+b).
+
+***** classic overlapping problem
+two people with starting time, exit time as si, ti for ith person and start, exit time as sj,tj for jth person
+
+know each other if: sj <= ti && tj >= si
+
+we forget to consider second condition
+
+***** using growing data strructure
+when new elements are added to result set we can use size of data structure in a loop
+eg:
+
+while( mySet.size() > oldSize ){
+
+	oldSize = myset.size();
+	loop( mySet )
+		add elements to mySet
+
+}
+
+***** path in a matrix
+sometime we may need to add direction to path funciont.
+three moves are allowed only; eg: move left, right, down but up is not allowed as it can create cycle.
+
+but even in three moves we need to make sure that we are not moving left right again and again specially when we want the worst path.
+
+so, f(x, y, L ) = cost( x,y ) + max( cost of moving down, cost of moving left ) // if previous direction was left move iin same direction not right
+
+when working with directions choose them as 0,1,2, etc as they will be helpful as indexes in array
+
+if you want to be compliant with co-ordinate system 
+use "arr[y][x]" instead of "arr[x][y]"
+
+we use recursion but to make solution plynomial we use memoization. if we know the parameters of recursion properly we can decide dimensions of array as well.
+
+eg: f( y, x, d ) will have dimensions [maxY][maxX][maxD]
+
+***** selection rank algo
+used to get ith smallest element
+
+if we can modify the arr; find pos of pivot element; let this pos be index; 
+if index < i => search for i-index-1 in [index+1,right.size()] else search for index in [0,index-1]
+
+***** when number lock is there
+if no of coloums is less for eg: 4 we can have 26^4 states. which makes it feasible to use BFS on each state. we can generate states on the fly and put them in queue to call BFS rather than creating a matrix initially.
+
+***** when using distances
+avoid floating point, you can do so. Rather than compute the distances to the four corners of the square, compute the distance squared (which is an integer), and compare that to the square of the radius.
+
+***** internal macro
+we can define internal macro and use it as in case of bfs like below:
+#define AAA(x2,y2) { \
+  if(board[x2][y2]!='X' && ddd[x2][y2]==INF) {\
+    ddd[x2][y2] = d+1; q.push((x2)*100 + (y2)); \
+  } \
+}
+    AAA(x-1,y); AAA(x,y-1); AAA(x+1,y); AAA(x,y+1);
+    
+***** using _macro
+using macro as below with _n=n
+
+#define REP(i,n) for(int _n=n, i=0;i<_n;++i)
+#define FOR(i,a,b) for(int i=(a),_b=(b);i<=_b;++i)    
+
+***** when using distance of point C from A,B
+
+if its a line; cross product ABxAC can be used
+so distance of C from line is ABxAC/mag(AB)
+
+if its a line-segment; then point can be on same line so cross prduct will give 0 in this case which is not good; so use dot product
+
+***** find area of polygon
+by triangulating; and adding area of each trianngle;
+
+float area;
+say O = 0th element of x, y array
+
+for( i = 1; i+1 < N; i++ ){
+	vx1 = x[i] - x[0];
+	vy1 = y[i] - y[0];
+	vx2 = x[i+1] - x[0];
+	vy2 = y[i+1] -y [0];
+	area += vx1*vy2 + vx2*vy1;	
+}
+return abs(area/2);
+
+***** cheching prime
+
+isPrime( int n ){
+
+if( n <= 1 ) return false;
+if( n == 2 ) return true;
+if( n % 2 == 0 ) return false;
+
+int m = sqrt( n );
+
+for( i = 3; i < m; i = i+2 ){
+	if( n % i == 0 )
+		return false
+}
+
+return true;
+
+}
+
+for large numbers use ****Sieve of Eratosthenes.****
+
+if number is a prime then all its multiples are not primes; so take numbers in an array and consider numbers till sqrt(n)
+
+prime[1..n] = true;
+findPrimes( n ){
+
+prime[0] = prime[1] = false;
+prime[2] = true;
+m = sqrt(n);
+for( i = 2; i <= m; i += 1 ){
+
+	if( prime[i] ){
+		/* works but below one is better
+		for( j = 2; j*i < n; j++ ){
+			prime[j] == false ;
+		} */
+		for( k = i*i; k <= n; k+= i )
+			prime[k] = false;
+		// may be same thing just begining is diff	
+	}
+
+}
+
+}
+
+***** GCD of two numbers
+The greatest common divisor (GCD) of two numbers a and b is the greatest number that divides evenly into both a and b. Naively we could start from the smallest of the two numbers and work our way downwards until we find a number that divides into both of them
+
+for( i = min(a,b); i >= 1; i-- )
+	if( a%i == 0 && b%i == 0 )
+		return i;
+		
+EUCLID's algo:
+Euclid's algorithm iterates over the two numbers until a remainder of 0 is found. For example, suppose we want to find the GCD of 2336 and 1314. We begin by expressing the larger number (2336) in terms of the smaller number (1314) plus a remainder:
+
+2336 = 1314 x 1 + 1022
+
+We now do the same with 1314 and 1022:
+1314 = 1022 x 1 + 292
+
+We continue this process until we reach a remainder of 0:
+1022 = 292 x 3 + 146
+292 = 146 x 2 + 0
+		
+so at last we can say both 2336 and 1314 can be expressed in multiples of 146
+
+int gcd( a, b ){
+
+	if( b == 0 ) return a;
+	gcd( b, a%b );
+	
+}
+
+as gcd(a,b) * lcm(a,b) = a*b
+so lcm(a,b) = a*b/gcd(a,b)
+
+***** lattice polygons
+lattice polygons: polygons having vertices at integers
+
+B = number of lattice points on the boundary of the polygon
+I = number of lattice points in the interior of the polygon
+
+then area of latt-polygon = B/2 + I -1
+
+**** polygon nets ****
+Euler's Formula for polygonal nets. A polygonal net is a simple polygon divided into smaller polygons. The smaller polygons are called faces, the sides of the faces are called edges and the vertices of the faces are called vertices. Euler's Formula then states
+
+V - E + F = 2, where
+
+V = number of vertices
+E = number of edges
+F = number of faces
+
+For example, consider a square with both diagonals drawn. We have V = 5, E = 8 and F = 5 (the outside of the square is also a face) and so V - E + F = 2. 
+
+**** convert from binary to any base
+
+string chars = "0123456789ABCDEFG";
+string res = "";
+
+string fromDecimal( int n, int b ){
+	while( n > 0 ){
+
+		res = chars[n%b] + res; // take care to prepend remainder
+		n/=b;
+	}
+}
+
+***** representation and calc on fractions
+we can represent fractions a[0,1] b[0,1]
+
+int[]  multiplyFractions( int a[], int b[] ){
+	return c={ a[0]*b[0], a[1]*b[1] };
+}
+
+int[] addFract( int a[], int b[] ){
+
+	int den = LCM( a[1], b[1] );
+	int c[] = {den/a[1] * a[0] + den/b[1]*b[0], den }
+	return c;
+
+}
+
+void reduceFract( int a[] ){
+	int gcd = GCD( a[0], a[1] );
+	a[0] / = gcd;
+	a[1] /= gcd;
+}
+
+***** combination of set
+eg: in case of three players; if one looses its value is subtracted and if he wins its value is added
+so there are 8 possible combinations which can be coded like below:
+
+for( i = -1; i <= 1; i += 2 ){
+	for( j = -1; j <= 1; j += 2 ){
+		for( k = -1; k <= 1; k += 2 ){
+		
+			temp = score + i*value + j*value + k*value;
+		
+		}
+	}
+}
+
+note: sometimes its not even necessary to divide in case of probablity just compute the favourable outcomes and store in int. use this for comparison
+
+**** imp questions are to compute:
+prob( all events ) = p(E1) * p(E2) * p(E3) * ... * p(En)
+
+but when asked prob( at least one event ) don't go for combination of possible evnets; but use
+
+p( at least one event ) = 1 - p( E1') * p(E2') ... p(En')
+						= 1 - p( none of events occur )
+
+***** sometimes if nestings are small we can use iteration rather than recursion
+
+we can use two arrays, for each level of nesting we can update B array and then update A array;it kind of uses DP. for eg below calculates prob.
+
+double probability (int N, int nestings, int target)
+{
+ int I, J, K;
+ double A[1001], B[2001];
+ // A[I] represents the probability of number I  to appear
+
+ for (I = 0; I < N ; I++)  A[I] = (double) 1 / N;
+ for (K = 2; K ≤ nestings; K++)
+ {
+  for (I = 0; I < N; I++)  B[I] = 0;
+  // for each I between 0 and N-1 we call the function "random(I)"
+  // as described in the problem statement
+  for (I = 0; I < N; I++)
+   for (J = 0; J < I; J++)
+    B[J] +=  (double) A[I] / I;
+    for (I = 0; I < N; I++)  A[I] = B[I];
+ }
+  return A[target];
+}
+
+note: remember to cast A[I]/I in double
+
+***** delta array *****
+use of delta arrays can be helpful in chess like problems
+eg:
+
+int dx[] = new int[] { 1, 2, 2, 1, -1, -2, -2, -1 };
+int dy[] = new int[] { 2, 1, -1, -2, -2, -1, 1, 2 };
+
+in Dp sol we can use N * chessboardSize array
+
+for problem of finding prob whether knight will remain on board after n moves:
+
+for( i = 1; i <= n; i++ ){
+
+	for( x=0; x < 8; x++ ){
+		for( y=0; y < 8; y++ ){
+			for( d = 0; d < 8; d++ ){
+				if( x+dx[d] >= 0 && x+dx[d] < 8 && y+dy[d] >= 0 && y+dy[d] < 8 )
+					prob += boardProb[i-1][y+dy[d]][x+dx[d]] / 8.0;
+			}		
+		}
+		boardProb[i][y][x] = prob;
+	}
+
+}
+
+**** prob and odds *****
+source: http://www.math-magic.com/probability/prob_to_odds.htm
+
+First, let's look at the difference between probability and odds:
+
+probability =  # of desirable outcomes/# of possible outcomes
+
+odds =  # of desirable outcomes/# of undesirable outcomes
+
+The probability of flipping a coin and getting heads is 1/2 because there are two possibilities [heads or tails]. 
+
+The odds of getting heads is 1/1 which means the chances of getting heads and the chances of getting tails are equal. 
+
+Many times we might say you have a 50-50 chance of getting heads and a 50-50 chance of getting tails.  When we use words like this we are talking about odds. 
+
+When we say you have a 50% chance of getting heads we are talking about probability.
+
+if given one we can find out other. eg: If the probability of losing is 6/17, then the odds of winning is ?
+
+odds of loosing = 6/11
+odds of winning = 5/11
+
+***** diff b/w likelihood and probability *****
+
+Likelihood is the hypothetical probability that an event that has already occurred would yield a specific outcome. The concept differs from that of a probability in that a probability refers to the occurrence of future events, while a likelihood refers to past events with known outcomes.
+
+***** monte carlo vs las-vegas algo
+monte-carlo algo: is a randomized algorithm whose running time is deterministic, but whose output may be incorrect with a certain (typically small) probability.
+
+Las Vegas: algorithm is a randomized algorithm that always gives correct results; that is, it always produces the correct result or it informs about the failure. its running time may be different. eg: Randomised quick sort
+
+***** find max packets required
+when we have to distribute quantity(Q) candies to kids(C) where each kid gets same number of candies; each packet can contain any combination of 5 colors.
+
+greedy works here but constant time solution uses fact that last state of buckets is that 4 of them are full of Q-1 beans.So final number of beans rquired: Q*C + (Q-1)*4
+
+#of packets needed: (Q*C + (Q-1)*4 + 19)/20
+
+***** STL concepts ******
+
+commonly used macros:
+
+typedef vector<int> vi; 
+typedef vector<vi> vvi; 
+typedef pair<int,int> ii; 
+#define sz(a) int((a).size()) 
+#define pb push_back 
+#define all(c) (c).begin(),(c).end() 
+#define tr(c,i) for(typeof((c).begin() i = (c).begin(); i != (c).end(); i++) 
+#define present(c,x) ((c).find(x) != (c).end()) 
+#define cpresent(c,x) (find(all(c),x) != (c).end())
+
+***** vector *****
+
+beware of 
+vector<int> v[10]; // array of 10 vectors
+vector<int> v(10); //vector of 10 elements
+
+it’s not a good practice to compare v.size() to zero if you want to know whether the container is empty.
+
+bool is_nonempty_notgood = (v.size() >= 0); // Try to avoid this
+bool is_nonempty_ok = !v.empty(); 
+
+Note that if you use push_back() after resize(), it will add elements AFTER the newly allocated size, but not INTO it. In the example above the size of the resulting vector is 25, while if we use push_back() in a second loop, it would be 30.
+eg:
+ vector<int> v(20); 
+ for(int i = 0; i < 20; i++) { 
+      v[i] = i+1; 
+ } 
+ v.resize(25); 
+ for(int i = 20; i < 25; i++) { 
+      v.push_back(i*2); // Writes to elements with indices [25..30), not [20..25) ! <
+ } 
+
+--> When vector is passed as a parameter to some function, a copy of vector is actually created. It may take a lot of time and memory to create new vectors when they are not really needed. 
+
+so instead of writing:
+void some_function(vector<int> v) { // Never do it unless you’re sure what you do! 
+      // ... 
+ } 
+
+use below:
+void some_function(const vector<int>& v) { // OK 
+      // ... 
+ } 
+
+If you are going to change the contents of vector in the function, just omit the ‘const’ modifier.
+
+***** pairs *****
+The array (or vector) of pairs can easily be sorted by STL internal functions. 
+
+for example in case of sorting llist indexing is not of much help; but pointers can work. similarly iterators are good for STL.
+
+***** iterators *****
+STL algorithms always use two iterators, called "begin" and "end." The end iterator is pointing not to the last object, however, but to the first invalid object, or the object directly following the last one. It’s often very convenient.
+
+c.begin() == c.end() if and only if c is empty, and c.end() – c.begin() will always be equal to c.size().
+
+To get the index of element found, one should subtract the beginning iterator from the result of find():
+
+int i = (find(v.begin(), v.end(), 49) - v.begin(); 
+ if(i < v.size()) { 
+      // ... 
+ } 
+
+for iterating we could define macro like:
+#define all(c) c.begin(), c.end()
+
+min_element() / max_element() work on container as well as data.
+int v1 = *max_element(X.begin(), X.end()); // Returns value of max element in vector 
+int i1 = min_element(X.begin(), X.end()) – X.begin; // Returns index of min element in vector
+int i2 = max_element( all(X) ) - X.begin()
+
+sort(X.begin(), X.end()); // Sort array in ascending order 
+sort(X.rbegin(), X.rend()); // Sort array in descending order using with reverse iterators 
+
+we can use following macro for traversing any container:
+#define tr(container, it) \ 
+      for(typeof(container.begin()) it = container.begin(); it != container.end(); it++) 
+
+typeof(container.begin()) it // creates iterator of type of container
+
+macros above can be really helpful for traversing complex containers like: set< pair<string, pair< int, vector<int> > > SS
+
+***** set *****
+there is global find( begin(), end(), data ) which takes O(N) time.
+instead we can use mSet.find( 2 ) which takes O(Log(N)) time
+
+so for finding in any container we can use following two macros:
+#define present(container, element) (container.find(element) != container.end()) 
+#define cpresent(container, element) (find(all(container),element) != container.end())
+
+cpresent uses global find with c.begin() , c.end()
+
+a simple way to get rid of duplicates in vector, and sort it:
+ vector<int> v; 
+ // … 
+ set<int> s(all(v)); 
+ vector<int> v2(all(s)); 
+ 
+***** map *****
+
+Internally map and set are almost always stored as red-black trees. that’s why it’s strongly not recommended to change the key value while traversing map or set: If you make the modification that breaks the order, it will lead to improper functionality of container's algorithms, at least.
+
+While map::find() will never change the contents of map, operator [] will create an element if it does not exist.it's definitly a bad idea to use operator [] many times in a loop, when you do not want to add new elements.  
+ 
+void f(const map<string, int>& M) { 
+      if(M["the meaning"] == 42) { // Error! Cannot use [] on const map objects! 
+      } 
+      if(M.find("the meaning") != M.end() && M.find("the meaning")->second == 42) { // Correct 
+           cout << "Don't Panic!" << endl; 
+      } 
+ }  
+ 
+***** algorithm *****
+Notice that sort() requires random access iterators, so it will not work on all containers. However, you probably won't ever call sort() on set, which is already ordered.  
+Don’t forget to ensure that the elements in a container are sorted before your first call to next_permutation(...). Their initial state should form the very first permutation; otherwise, some permutations will not be checked.  
+ 
+***** sstream or stringstream ***** 
+istringstream allows you to read from a string like you do from a standard input.
+eg:
+void f(const string& s) { 
+
+      // Construct an object to parse strings 
+      istringstream is(s); 
+ 
+      // Vector to store data 
+      vector<int> v; 
+
+      // Read integer while possible and add it to the vector 
+      int tmp; 
+      while(is >> tmp) { 
+           v.push_back(tmp); 
+      } 
+ } 
+
+ostringstream object is used to do formatting output. eg:
+ 
+ string f(const vector<int>& v) { 
+
+      // Constucvt an object to do formatted output 
+      ostringstream os; 
+
+      // Copy all elements from vector<int> to string stream as text 
+      tr(v, it) { 
+           os << ' ' << *it; 
+      } 
+
+      // Get string from string stream 
+      string s = os.str(); 
+
+      // Remove first space character 
+      if(!s.empty()) { // Beware of empty string here 
+           s = s.substr(1); 
+      } 
+
+      return s; 
+ }  
+ 
+***** copy data *****
+copy(from_begin, from_end, to_begin); 
+
+ // Now copy v2 to the end of v1
+ v1.resize(v1.size() + v2.size()); 
+ // Ensure v1 have enough space 
+ copy(all(v2), v1.end() - v2.size()); 
+ // Copy v2 elements right after v1 ones   
+ // we are using v1.end() - v2.size() because we just had resized v1
+ // we could use  rbegin/rend, which copy data in reverse order.
+ 
+set_union(...), set_intersection(...), set_difference(...) and set_symmetric_difference(...).  
+
+end_result = set_intersection(begin1, end1, begin2, end2, begin_result);
+
+Here [begin1,end1) and [begin2,end2) are the input lists.
+
+eg: vector<int> res = vector<int> (tmp.begin(), set_intersection(all(v1), all(v2), tmp.begin());
+
+input datasets need to be sorted to use these algorithms. So, another important thing to remember is that, because sets are always ordered, we can use set-s (and even map-s, if you are not scared by pairs) as parameters for these algorithms. So REMEMBER to use sorted vectors as input to these algos.
+
+***** calculating algo *****
+int sum = accumulate(all(v), 0); 
+
+if sum can't fit in integer then use:
+long long sum = accumulate(all(v), (long long)0); 
+
+double product = accumulate(all(v), double(1), multiplies<double>()); // for calculating product
+
+inner_product(...): It calculates the scalar product of two intervals.
+
+inner_product(all(normal), point.begin(), -shift). 
+
+eg: int r = inner_product(all(v1), v2.begin(), 0); 
+
+inner_product requires only increment operation from iterators, so queues and sets can also be used as parameters
+
+***** non - trivial sorting
+all comparison is based on 'operator <' so we need to override 'operator <'
+
+eg:
+struct fraction { 
+      int n, d; // (n/d) 
+      // ... 
+      bool operator < (const fraction& f) const { 
+           if(false) { 
+                return (double(n)/d) < (double(f.n)/f.d); 
+                // Try to avoid this, you're the TopCoder! 
+           } 
+           else { 
+                return n*f.d < f.n*d; 
+           } 
+      } 
+ }; 
+
+ vector<fraction> v;   
+ sort(all(v));
+
+overloading 'operator <' is helpful while considering precision into account:
+
+const double epsilon = 1e-7; 
+ 
+ 
+struct point { 
+       double x, y; 
+   
+       // Declare operator < taking precision into account 
+       bool operator < (const point& p) const { 
+            if(x < p.x - epsilon) return true; 
+            if(x > p.x + epsilon) return false; 
+            if(y < p.y - epsilon) return true; 
+            if(y > p.y + epsilon) return false; 
+            return false; 
+       } 
+ };   
+ 
+NOTE: Also remember that 'operator <' should always return false for equal objects. for STL 'equal' does not mean 'the same'. 
+ 
+***** Memory management in STL 
+Most STL implementations of vector double in size when push_back() is invoked and memory is not allocated. 
+ 
+use the reserve() member function of vector. This function orders vector to allocate additional memory. Vector will not enlarge on push_back() operations until the size specified by reserve() will be reached.  
+ 
+use of stl eg: as dfs
+
+/*
+Reminder from Part 1:
+typedef vector<int> vi;
+typedef vector<vi> vvi;
+*/
+
+ int N; // number of vertices 
+ vvi W; // graph 
+ vi V; // V is a visited flag 
+ 
+ void dfs(int i) { 
+       if(!V[i]) { 
+            V[i] = true; 
+            for_each(all(W[i]), dfs); 
+       } 
+ } 
+  
+ bool check_graph_connected_dfs() { 
+       int start_vertex = 0; 
+       V = vi(N, false); 
+       dfs(start_vertex); 
+       return (find(all(V), 0) == V.end()); 
+ }  
+ 
+for_each calls dfs funtion for each vector. 
+ 
+One more important thing: STL’s priority_queue does not support the DECREASE_KEY operation. If you will need this operation, ‘set’ may be your best bet. 
+ 
+**** mod in power ****
+// The value of h would be "pow(d, M-1)%q"
+
+    for (i = 0; i < M-1; i++)
+        h = (h*d)%q;
+ 
+**** int_max 
+int y=0X7FFFFFFF 
+const int MOD = 1e9+7 is same as 1000000007
+ 
+*** 
+we don't need to use string stream always in tc/cf questions
+we can just scanf things
+ 
+**** array of vector VS vector of vector
+we can use array of vector as follow:
+
+VI graph[SIZE+1];
+
+for inputting data we don't have to worry about its size; we can simply insert by:
+
+	fori(n-1){
+		cin >> u >> v;	
+		graph[v].push_back( u );
+	}
+ 
+but while using vector of vector we need to resize it before using it.
+
+vector<vector<int> > a; 
+ 
+a.resize(n);
+ 
+ then we can insert elements:
+ 
+ for(int i=0; i<n-1; i++)
+	{
+		cin>>x>>y;
+		x--; y--;
+		a[x].push_back(y);
+		a[y].push_back(x);
+	}
+ 
+**** alternative node traversal
+using XOR  or modulo is good if we want ot traverse nodes alternatively.
+ 
+**** equality among floating numbers
+two floats can't be directly compared; use EPS among them
+eg:
+if times are equal then use min distance else use current distance
+
+if( tt < t + EPS ){
+	if( t < tt + EPS ){  // means times are equal
+		if( dd < d )
+			d = dd;
+	}else{ // times are not equal; just use newwer dist
+		d = dd;
+	}
+} 
+
+**** 101010... lesser than given number 
+recursive solution is of great help in such cases.
+eg: to find numbers consisting of 0,1s less than num; we can use recursive function as below:
+
+int solve( int k ){
+
+if( k > n )
+	return 0;
+else
+	return 1 + solve(10*k) + solve( 10*k + 1 );
+
+} 
+ 
+***** define or typedef ***** 
+#define can also lead to other unexpected errors. What happens if there's a function or local variable in your program which also happens to be named BOB? #define doesn't care, it'll replace it anyway. It also doesn't care about namespace or scope -- a #define anywhere in the program can pollute any and all namespaces/functions/classes. This is a common problem with <windows.h> which #defines its own min/max macros -- which effectively screws you if you try to use std::numeric_limits<type>::max() or the like. You have to explicitly #undef them to avoid those errors.
+
+typedefs are type aware and flow with C++ more naturally, rather than #defines which sort of force their way in.
+
+take care not to use same variable name in define and typedef;
+
+#define I int
+typedef long long int I
+
+preprocessor will replace all occurances of I with int; then compiler tries to find I to be replaced with long long int and couldn't find it; because it had already been replaced with int. also you can not use function named I() as preprocessor will blindly replace I with int.
+
+using only typdef still gives error but this time it gives redeclaration error which is easy to understand.
+ 
+**** using <algorithm> sort() function ****
+http://www.cplusplus.com/articles/NhA0RXSz/ suggests that third parameter allows us to define how the sort() function will actually perform the search. 
+ 
+bool wayToSort(int i, int j) { return i > j; } //tell to sort descendingly  
+ 
+bool wayToSort(int i, int j) { return i < j; } //tell to sort ascendingly
+ 
+for sort according to structure or class:
+
+struct Person
+{
+    string name;
+    int age;
+    string favoriteColor;
+}; 
+ 
+bool sortByName(const Person &lhs, const Person &rhs) { return lhs.name < rhs.name; }
+
+// Sort Container by age function
+bool sortByAge(const Person &lhs, const Person &rhs) { return lhs.age < rhs.age; }
+
+i have tried with own defined structure as below:
+
+typedef struct{
+	int x;
+	int y;
+}Point;
+
+bool compare( Point p1, Point p2 ){ //without &reference
+	
+	if( p1.x < p2.x ) return true;
+	if( p1.x == p2.x && p1.y < p2.y ) return true;
+	return false;
+} 
+
+it sorts accordingly; 
+NOTE: take care to use p1.x < p2.x NOT { p1 < p2 } otherwise it gives weired errors.
+
+there is no issue with typedef or constant references; we can use them freely.
+
+**** passing array of structure to a function ****
+
+void pass (GoldenHelmet ofMambrino[], int size)
+void pass (GoldenHelmet ofMambrino[10], int size)
+void pass (GoldenHelmet *ofMambrino, int size)
+
+//imp: passing array of structure using references
+void pass (GoldenHelmet (&ofMambrino)[SIZE], int size) // remember to send SIZE in this case; it didn't worked when i tried it empty
+
+here we are saying that ofMambrino is reference to array of structs of type GoldenHelmet; it will be called as follow:
+
+GoldenHelmet arr[SIZE];
+pass( arr, n ); --> here we are sending pointer to an array of structure and in pass() we are receiving it as reference to array of structure GoldenHelmet.
+
+*** loop optimisation
+instead of 
+int i = 0;
+for( i = 0; i < vec.size(); i++ ){
+	---- vec[i];
+}
+
+we can use
+for( i =0, sz = vec.size(); i < sz; i++  ){
+	---- vec[i];
+}
+
+
+
+
+
+

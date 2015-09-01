@@ -1,0 +1,477 @@
+
+in case of comparison of tree numbers we can use 2 number comparison using 
+result = max( a , max( b, c) )
+
+***************
+
+sometimes rather than using while inside while we can use indicator like done and set it when we don't want to loop
+
+while( !done ){
+
+	if( itr != NULL )
+		push to staack
+		itr = itr -> left 
+	else
+		if( a )
+			do something 
+			move to right
+		else 
+			done = true
+
+}
+
+***************
+
+in recursion be careful that sometimes we keep things in else part and sometimes not:
+
+if( cond ){
+	if(NULL) return;
+}else{
+	recurse()
+}
+--------------------------
+
+
+if( cond ){
+	if(NULL) return;
+}
+
+recurse()
+
+***************
+char far *farther,*farthest;
+  
+printf("%d..%d",sizeof(farther),sizeof(farthest));
+
+4..2
+
+farthest is pointer to char not far pointer.
+
+***************
+int main( ){
+	  goto here;
+}
+
+fun()
+{
+   here:
+     printf("PP");
+}
+gives error: label ‘here’ used but not defined
+Labels have functions scope, in other words The scope of the labels is limited to functions .
+
+***************
+	int i=5;
+	printf("%d",i+++++i);
+	
+error: lvalue required as increment operand
+
+***************
+int i = 0;
+for(;i++;printf("%d",i)) 
+        printf("%d",i);
+
+doesn't print anything as it gets out of loop in i++ as increment is operated later than evaluation.
+
+but if we take i = 1; it goes in infinite loop.
+
+***************
+while finding factors of a number( say A ); in for loop we can loop untill A/2 but it can further be optimised by looping till A/p.
+
+for( p = 2; p <= A/p; p++ ){
+        int ri = 0;
+        while (A % p == 0) {
+            ri += 1;
+            A /= p;
+        }
+        if (ri != 0) {
+            r.push_back(ri);
+        }       
+}
+
+if( A != 1 )
+    r.push_back( 1 ); // for A             
+
+***** soltion to 1 to 100 lockers puzzle
+100 lockers are there which are toggled one by one
+how many are open after 100th turn
+
+locker is toggled on basis of factor:
+15=1x15, 3x5, 5x3, 15x1
+    O     C    O    C
+
+in case of perfect square we have odd factors, which will keep it open    
+36 = 1x36, 2x18, 3x12, 4x9, 6x6 
+
+there are 10 perfect squares from 1 to 100, so 10 lockers will be open.
+
+***** print all possible permutaions of parentheses
+similar to  problems like:
+Generating all possible ways to balance N pairs of parentheses (i.e. this problem)
+Generating all possible ways to apply a binary operator to N+1 factors
+Generating all full binary trees with N+1 leaves
+
+in binary tree we can consider ( as 0 and move left, ) as 1 and move right sso all possible binay trees can be created.
+
+void _printParenthesis(int pos, int n, int open, int close)
+{
+  static char str[MAX_SIZE];     
+ 
+  if(close == n) 
+  {
+    printf("%s \n", str);
+    return;
+  }
+  else
+  {
+    if(open > close) {
+        str[pos] = '}';
+        _printParenthesis(pos+1, n, open, close+1);
+    }
+    if(open < n) {
+       str[pos] = '{';
+       _printParenthesis(pos+1, n, open+1, close);
+    }
+  }
+}
+
+pos is the position in arr where we have to put parenthesis, n is number of parenthesis we need to put, open is no of open parenthesis we had put and close id no of close parentheses we had put.
+
+
+***** given two sorted arrays A, B wheere A is large enough to hold B
+we need to merge A and B; we can do this by comparing from last element of A, B and puting in last of A
+A[n], i = n
+B[m], j = m
+
+start puting elements into k = n+m-1 whichever is larger A[i] or B[j], into A[k]
+
+***** what is anagram
+a word, phrase, or name formed by rearranging the letters of another, such as spar, formed from rasp.
+
+***** searching an element in MxN matrix with all sorted elements can be done like:
+
+boolean FindElem(int[][] mat, int elem, int M, int N) { 	
+ int row = 0;
+ int col = N-1;
+ while (row < M && col >= 0) {
+ 	if (mat[row][col] == elem) {		
+	 return true;
+    } else if (mat[row][col] > elem) {		
+      col--;
+    } else {		
+      row++;
+    }
+ }
+	 return false;	
+ }
+
+***** prob 
+prob(s,k) = C(n,k) p^k + (1-p)^(n-k)
+
+***** in case of double calcs
+you can't use 0 for diff so use epsilon
+eg:
+double epsilon = 0.00000001;
+return abs( slope1, slope2 ) > epsilon
+
+
+***** in 2-player game
+generally it uses backtracking
+in case of backtracking don't forget to revert back to orig pos.
+instead of storing candies( or points ) for each player we can choose difference of them. now players play turn by turn so difference should be negated when calling same function and result of that function should be negated again.
+eg:
+res = -INF;
+old = box[i];   // old is candy/points taken form box[i]
+res = max( res, -f(-( d + old )) ); //give input negative of candies you got and negate the candies your opponent got
+
+box[i]=old;     // remember to revert back 
+
+***** modified malloc and free 
+
+allocate required_bytes aligned at alignment 
+
+ void* aligned_malloc(size_t required_bytes, size_t alignment) {
+	 void* p1; // original block
+	 void** p2; // aligned block	
+	 int offset = alignment - 1 + sizeof(void*);
+	 if ((p1 = (void*)malloc(required_bytes + offset)) == NULL) {
+	 return NULL;	
+ 	}
+	 p2 = (void**)(((size_t)(p1) + offset) & ~(alignment - 1));
+	 p2[-1] = p1;
+	 return p2;	
+ }
+ 
+ void aligned_free(void *p) {
+	 free(((void**)p)[-1]);
+ }
+
+here we could not return starting address of allocation. so we stored address of starting point of allocation in previous location of address.
+
+PoT: we added space for storing address in offset also
+we stored starting address of allocation just before the returning pointer using p2[-1] = p1
+p2 is pointer to pointer
+we need to cast void* to void** in free
+
+****** generate a rand7() when rand5() is given
+In order to generate a random number between 1 and 7, we just need to uniformly generate
+a larger range than we are looking for and then repeatedly sample until we get a number that
+is good for us. We will generate a base 5 number with two places with two calls to the RNG.
+public static int rand7() {
+	
+ while (true) {
+		
+ int num = 5 * (rand5() - 1) + (rand5() - 1);
+		
+ if (num < 21) return (num % 7 + 1);
+ 
+***** an algorithm to find all pairs of integers within an array which sum to a speci-fied value.	
+ 
+while (first < last) {
+ int s = array[first] + array[last];
+ if (s == sum) {
+ 	System.out.println(array[first] + “ “ + array[last]);		
+	 ++first;		
+	 --last;	
+ } else {		
+	 if (s < sum) ++first;		
+	 else --last;	
+ }
+}
+
+****** randomly selecting an element from n elements
+first randomly select a position; move element[pos] to first positon
+now select a random position; move element[pos] to second position and continue...
+
+ for (int i = 0; i < cards.length; i++){
+	 index = (int) (Math.random() * (cards.length - i)) + i;	
+	 temp = cards[i];	
+	 cards[i] = cards[index];	
+	 cards[index] = temp;
+ }
+
+***** min diff b/w numbers
+given sorted arrays A, B find min diff b/w any two numbers
+
+for each element in A we do modified binary search in B returning the closest number's difference
+of all these differences we select the min defferences
+
+***** when we add two numbers
+carry is never greater than 1; its 0 or 1
+eg: add 9 + 9 : carry = 1
+
+so we don't have to worry about it even in case of other base numbers like 16
+
+***** conversion from hexa to number and vice versa
+
+int getNumber( char num ){
+
+	if( num >= '0' && num <= '9' )
+		return num - '0';
+	else
+		return num - 'A' + 10;   // remember to add 10	
+}
+
+char getNumeral( int n ){
+
+	if( n >= 0 && n <= 9 )
+		return n + '0';
+	else
+		return n - 10 + 'A';  // remember to add A
+
+}
+
+*****
+float n;
+int ipart = (float)n;
+float fpart= n - (float)ipart;
+
+***** finding complexity of algo
+we can use recursion tree to guess and verify using substituion method
+
+master theorem can be applied if ( if options contains THETA notations )
+T(n) = aT(n/b) + f(n)
+
+in case if sqrt(n) is used in like below:
+T(n) = 2T( sqrt(n) ) + 1
+
+replace n by 2^m and solve using master theorem
+
+by recursion trees we get idea of BIG-O ; but options have THETA in this case either apply master theorem or get some idea from recursion tree itself, eg:
+
+T(n) = T(n/3) + cn
+by recursion tree:
+T(n) <= 3cn/2
+
+or we can say
+cn <= T(n) <= 3cn/2
+so it is THETA(n)
+
+annoying questions:
+
+1)
+T(n) = 2T( sqrt(n) ) + 1
+complexity: THEATA( log(n) )
+
+2)
+T(n) = T(sqrt(n)) + 1
+complexity: O( log log(n) )
+
+when n = m^2; then 1) becomes 
+S(m) = 2S(m/2) + c means problem is broken in two subproblems of equal half size; so S(m) = THETA(m)
+
+but in 2) 
+S(m) = S(m/2) + c means problem is broken in single problem of half size which is similar to binary search; so S(m) = O(log(m) )
+
+hence the results are different....
+
+***** hashing
+source : wiki 
+
+key is hashed to index and we can get value at index. good hash function should minimize collision as well as uniformly distribute the keys.
+
+for open addressing we should avoid clustering means hashing keys to consecutive indexes.Such clustering may cause the lookup cost to skyrocket, even if the load factor is low and collisions are infrequent. The popular multiplicative hash is claimed to have particularly poor clustering behavior.
+
+if all keys are known ahead of time perfect hash function can be used to create a perfect hash table that has no collisions. 
+
+load factor = n/k
+n: number of entries
+k: number of buckets
+
+If the load factor is kept reasonable, the hash table should perform well, provided the hashing is good. if load factor grows too large, the hash table will become slow, or it may fail to work (depending on the method used).
+
+low load factor is also not beneficial; As the load factor approaches 0, the proportion of unused areas in the hash table increases.
+
+b'day paradox suggests that there is high prob of collision of keys even with very large number of buckets so its better to have collision resolution mechanism.
+
+**** separate chaining( open hashing or closed addressing ): 
+each bucket is independent, and has some sort of list of entries with the same index. time is constant + moving through list => this technique is also called open hashing or closed addressing.
+
+separate chainging can be acheived with:
+1) linked lists: 
+its very effective even with high load factor. its faster than list and can be sometimes faster than BST.
+if lists are ordered it reduces the searching cost as compared to unordered lists.
+
+as it uses next pointer in list it has memory overhead and has poor cache performance.
+
+2) list head cells: almost same as above
+
+3) other DS like using self balancing BST instead of list or dynamic array instead for better caching
+
+**** Open addressing:
+we probe the buckets in case of collision
+it's called open-addressing as address of element is not determined by hashed value.
+
+we use:
+1) Linear probing
+2) quadratic probing
+3) double hashing
+
+more stringent hash function is required. not only uniform distribution is required but also clustering should be avoided
+
+open addressing saves memory only if entries are small. 
+
+it can take advantage of locality of reference,( particularly for linear  probing) but this advantange is lost if records are large to fit in cache.
+
+If the table is expected to have a high load factor, the records are large, or the data is variable-sized, chained hash tables often perform as well or better.
+
+**** coalesced hashing
+hybrid of open and closed addressing
+instead of list next element is filled in table itself
+
+**** cuckoo hashing
+lookup time O(1) in worst case and for insertion/deletion amortized time O(1)
+new key is hashed to some bucket. if there is collision another hash func is used; if still collision another hash func ... at last if there is still collision old key is removed new key is placed at hashed place; old key is rehashed to some bucket.
+
+**** robin hood hashing
+
+**** 2 choice hashing
+
+**** hopscotch hashing
+Another alternative open-addressing solution is hopscotch hashing,[18] which combines the approaches of cuckoo hashing and linear probing, yet seems in general to avoid their limitations. In particular it works well even when the load factor grows beyond 0.9. The algorithm is well suited for implementing a resizable concurrent hash table.
+
+**** reverse a stack without using auxiliary space
+can be done using double recursion; use two functions reverse(), insertAtBottom()
+
+insertAtBottom( int item ){
+
+if( stk.empty() ) stk.push( item );
+else{
+	temp = stk.pop();
+	insertAtBottom( item );
+	stk.push( temp );
+}
+
+}
+
+reverse(){
+
+if( !stk.empty() ){
+ temp = stk.pop();
+ reverse();
+ insertAtBottom( temp );
+}
+
+}
+
+**** n teams problem 
+is very good example of using DS like BST or algo like quick sort
+
+**** 60/40 % prob
+given fun() which returns true with 60%, false with 40% prob
+return func() which retruns with 50% prob
+
+func( ){
+
+v1 = fun();
+if( v1 == 1 && v2 == 0 ) return 1;       //reached with p = 0.24
+else if( v1 == 0 && v2 == 1 ) return 0;  //reached with p = 0.24
+else
+return fun();
+}
+
+**** given fun() returns number from 1 to 5 with equal prob
+create func() that returns number 1 to 7 with eaual prob
+
+using formula: 5*fun() + fun() - 5
+as this formula generates each number exaclty once b/w 1 and 25
+
+eg: for ( first=1; first<=5; ++first )
+        for ( second=1; second<=5; ++second )
+            printf ("%d \n", 5*first + second - 5);
+
+my_rand( ){
+
+temp = 5*foo() + foo() - 5;
+if( temp < 22 )
+	return temp % 7 + 1;
+else
+	return my_rand();
+
+}
+
+*****
+Selection Sort makes least number of writes (it makes O(n) swaps).  But, Cycle Sort almost always makes less number of writes compared to Selection Sort. 
+
+**** list possible words in phone keyboard
+in base case take care when digit = 0 or digit = 1
+then we print nothing and return
+
+*** bins required for storing n for elements where each bin can have k elements
+( n + (k-1) ) / k 
+eg: (n + 4)/5 now we don't have to worry about case if n is divisible by 5, its zero or not
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,230 @@
+fork() , exec series is used to put program in process
+spawn() can be used for child creation
+
+if child dies before parent process could call wait(); it becomes zombie for some time.
+if parent dies before wait() on child; init becomes parent of child; whcih cleans child when founds about its zombie nature
+
+handle SIGCHLD signal in sigaction in parent process if u don't want to be blocked for child process termination
+
+***** signals
+struct sigaction sa
+sa is assigned handler for particular signal; which is called when that signal arrives; if handler can't catch that signal process is terminated
+
+***** POSIX api for multithreading
+pthread_create()
+args: 
+pthread_t : stores thread-id and info
+thread attributes
+pointer to function that thread has to execute
+thread argument as void *
+
+pthread_join( thread_id, thread_return_status )
+use this function in main thread if you don't want main to exit before thread
+
+pthread_attr_t contains thread attributes
+pthread_attr_init is passed pthread_attr_t object to initialize its contents
+pthread_attr_destroy is used to release attribute objects
+
+default or joinable thread's exit status hangs around untill another thread calls pthread_join on this thread.
+detach thread is immediately cleaned up on completion
+pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
+
+pthread_cancel passed with thread-id can terminate other thread.
+if pthread_cancle is called thread resources may be cleaned up or not based on its state defined in its attribute: 
+uncancelable
+synchronously cancelable : cancelled at cancel points only
+asynchronously cancelable : can be cancelled any time
+
+pthread_setcanceltype() sets the cancel behaviour of thread
+cancel-state should be set to PTHREAD_CANCEL_DISABLE before critical sections; otherwise it can be cancelled in between
+then PTHREAD_CANCEL_ENABLE state should be restored
+
+Sometimes, however, it is desirable to duplicate a certain variable so that each thread has a separate copy. GNU/Linux supports this by providing each thread with a thread-specific data area.
+
+for thread specific data pthread_key_create() method is called with first arg as pthread_key_t variable; second argument as clean-up function pointer.
+
+After you’ve created a key, each thread can set its thread-specific value correspond-ing to that key by calling "pthread_setspecific()".The first argument is the key, and the second is the void* thread-specific value to store.
+To retrieve a thread-specific data item, call "pthread_getspecific()", passing the key as its argument.
+
+if we want to cleanup resources in case thread terminates abnormally or cancelled we use cleanup handlers.
+pthread_cleanup_push() is passed cleanup-handler-function along with arguments to cleanup-handler-function
+pthread_cleanup_pop() deregisters cleanup function. if passed a non-zero int it cleans up resources othrewise only deregisters cleanup-handler-fucntion
+
+for sysnchronisation one method is to use lock like mutex; linux assures that only one thread gets the lock others are blocked untill it releases the lock.
+
+pthread_mutex_t mutex;
+pthread_mutex_init (&mutex, NULL);
+
+pthread_mutex_lock() blocks execution and returns only eventually when the mutex is unlocked by the other thread
+
+A call to pthread_mutex_unlock unlocks a mutex.This function should always be called from the same thread that locked the mutex. if one forgets it; it creates havoc.
+
+deadlock can occur if thread tries to lock mutex in a row more than once.
+
+types of mutex:
+fast mutex( default ): causes deadlock if locked > 1 times
+recursive mutex: keeps track of who locked previously and doesn't deadlocks if locked > 1
+PTHREAD_MUTEX_ERRORCHECK_NP: if this is set then on trying lock > 1 linux detects and returns failure with EDEADLK
+
+pthread_mutexattr_t can be used to set attributes of mutex. eg:
+
+pthread_mutexattr_init (&attr);
+pthread_mutexattr_setkind_np (&attr, PTHREAD_MUTEX_ERRORCHECK_NP);
+pthread_mutex_init (&mutex, &attr);
+pthread_mutexattr_destroy (&attr);
+
+pthread_mutex_trylock() should be used instead of pthread_mutex_lock() if we don't want our thread to blocked 
+
+in job-queue example when queue becomes empty threads all threads are finished; we need a mechanism to ensure that threads wait if no job is left, we do it using semaphore.
+A semaphore provides a convenient method for doing this. A semaphore is a counter that can be used to synchronize multiple threads.
+
+Each semaphore has a counter value, which is a non-negative integer. two operations are permitted:
+1) wait
+2) post
+
+similar to mutex we have
+sem_t 
+sem_init()
+sem_destroy()
+sem_wait()
+sem_post()
+sem_trywait()
+sem_getvalue
+
+in job queue example thread is blocked in semaphore if no job is present in queue; it locks the mutex before modifying the queue.
+
+we use a mutex to protect a variable against simultaneous access by two threads and use semaphores to implement a shared counter.
+
+A condition variable enables you to implement a condition under which a thread exe-cutes and, inversely, the condition under which the thread is blocked.
+
+Unlike a semaphore, a condition variable has no counter or
+memory
+
+like semaphore thread A waits on condition variable untill another thread B signals on same condition variable. Unlike semaphore A must wait before B signals. if B signals before A waits signal is lost and A waits untill another thread signals it.
+
+there might be race condition in case of signal lost. GNU/Linux allows you to unlock the mutex and wait on the condition variable atomically.
+
+pthread_cond_t
+pthread_cond_init()
+pthread_cond_signal()
+pthread_cond_wait()
+
+When pthread_cond_wait is called, the mutex must already be locked by the calling thread.That function atomically unlocks the mutex and blocks on the condition variable.When the condition variable is signaled and the calling thread unblocks, pthread_cond_wait automatically reacquires a lock on the mutex.
+
+for condition variable to avoid race condition it should be accompnied by mutex. 
+
+Steps for using condition variable:
+1. Lock the mutex accompanying the condition variable.
+2. Take the action that may change the sense of the condition (in our example, set
+the flag).
+3. Signal or broadcast the condition variable, depending on the desired behavior.
+4. Unlock the mutex accompanying the condition variable.
+
+A condition variable may also be used without a condition, simply as a mechanism for blocking a thread until another thread “wakes it up.” A semaphore may also be used for that purpose.The principal difference is that a semaphore “remembers” the wake-up call even if no thread was blocked on it at the time, while a condition variable discards the wake-up call unless some thread is actually blocked on it at the time. Also, a semaphore delivers only a single wake-up per post; with pthread_cond_broadcast, an arbitrary and unknown number of blocked threads may be awoken at the same time.
+
+The deadlock problem occurs when multiple threads try to lock the same setof resources in different orders.The solution is to make sure that all threads that lock more than one resource lock them in the same order.
+
+Whenever you call pthread_create to create a new thread, Linux creates a new process that runs that thread. However, this process is not the same as a process you would create with fork; in particular, it shares the same address space and resources as the original process rather than receiving copies.
+
+except from our main thread and created thread there is another thread running known as manager thread  which is part of the internal implementation of GNU/Linux threads. manager thread is created during firsat call to pthread_create().
+
+pthread_kill is used to send signal to another thread. which thread will get the signal varies acc to systems.
+
+
+**** IPC
+types of IPC:
+1) Shared memory permits processes to communicate by simply reading and
+writing to a specified memory location.
+2) Mapped memory is similar to shared memory, except that it is associated with a file in the filesystem.
+3) Pipes permit sequential communication from one process to a related process.
+4) FIFOs are similar to pipes, except that unrelated processes can communicate because the pipe is given a name in the filesystem.
+5) Sockets support communication between unrelated processes even on different computers.
+
+1) shared memory:
+one process must allocate the segment.Then each
+process desiring to access the segment must attach the segment.
+At some point, one process must deallocate the segment.
+
+getpagesize() to get page size
+shmget(): args are
+key like IPC_PRIVATE 
+#bytes to be allocated
+options to shmget
+
+shmat(): args are
+shmid returned by shmget()
+address where in process address space you want to attach
+flag indicating read only, page alignment
+
+children created by fork() also inherit shared segments; which should be detached if not of use in child.
+
+shmdt() to detach the segment
+shmctl() to get info about segment/modify it
+
+Invoking exit and exec detaches memory segments but does not deallocate them.
+
+process semaphore or system V semaphores are different than POSIX thread semaphores. these semaphores are allocated, controlled and deallocated similar to shared memory.
+
+semget() : allocate semaphore
+semctl() : used to initialize and deallocate semaphores
+
+union semun structure is passed to semctl().
+semop() defines the task that need to be done on semaphore. struct sembuf which defines the operation to be performed is passed to semop().
+
+struct sembuf has fields:
+sem_num: semaphore index in set on which op is to be performed
+sem_op:  number to be added/subtracted to sem value
+sem_flg: IPC_NOWAIT, SEM_UNDO
+
+2) mapped memory:
+memory is mapped to file.
+mmap()
+munmap() 
+
+use MAP_SHARED flag to immediately write to file whenever there is change in mapped memory.
+
+we can use semaphore as in case of shared memory or fcntl to read/write lock on mapped memory for concurrency in accessing.
+
+MAP_PRIVATE can be used if we don't want to shere our changes to other processes.
+
+3) pipe
+permits unidirectional comm
+communicate between two threads in a single process or between parent and child processes.
+
+int pipe_fd[2];
+pipe( pipe_fd ) : pipe_fd[0] is read fd we can read from it; pipe_fd[1] is write fd we can write to it.
+
+when child process is forked pipe file-descriptors are copied to child process; wchih can be used for communication
+
+Using the dup2 call, you can equate one file descriptor with another. eg:
+dup2( fd, STDIN_FILENO )
+
+The symbolic constant STDIN_FILENO represents the file descriptor for the standard input, which has the value 0.The call closes standard input and then reopens it as a duplicate of fd so that the two may be used interchangeably.Thus, characters read from fd are not reread from standard input.
+
+popen(): when opened in writing mode returns the stdin where we can write data; when opened in reading mode returns stdout where we can read data from.
+
+pclose(): closes the child process's stream and returns its exit status
+
+so we can avoid fork(), exec(), pipe() if we use popen() and pclose().
+
+3) FIFO
+
+for unrelated process communication we use FIFO.
+to write to FIFO:
+int fd = open (fifo_path, O_WRONLY);
+write (fd, data, data_length);
+close (fd);
+
+we can use C standard library also. eg:
+FILE* fifo = fopen (fifo_path, “r”);
+fscanf (fifo, “%s”, buffer);
+fclose (fifo);
+
+5) Socket programming
+
+***** POSIX API for system programming
+linux system programming by Robert Love
+
+Special files are kernel objects that are represented as files.
+
+*****

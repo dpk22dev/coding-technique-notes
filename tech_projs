@@ -1,0 +1,361 @@
+***** diff b/w oracle and sql db
+--MySQL is famous in web (where MySQL really excels) and small/medium OLTP environments. On the other hand, Oracle excels in large business applications (large OLTP and enterprise applications). oracle supports the best concurrency algorithms, the best storage engines, the best query optimizers etc.
+
+MySQL uses an additional location parameter when authenticating a user. This location parameter is usually the host name, IP address, or a wildcard (Ò%Ó). With this additional parameter, MySQL may further restrict a user access to the database to a particular host or hosts in a domain.Thus, user scott, who logs on from abc.com may or may not the same as user scott who logs on from xyz.com.
+
+MySQL allows privileges to be granted at five different levels, in descending order of the scope of the privileges:
+
+Global
+Per-host basis
+Database-level
+Table-specific
+Column-specific (single column in a single table
+
+Unlike in Oracle, there is no concept of role in MySQL. Thus, in order to grant a group of users the same set of privileges, the privileges have to be granted to each user separately.
+
+In MySQL, for a column that does not allow NULL value and for which no data is provided for the column when data is inserted into the table, MySQL determines a default value for the column. This default value is the implicit default value for the column data type. However, if the strict mode is enabled, MySQL generates errors, and for transactional tables it rolls back the insert statement.
+
+In Oracle, when data is inserted into a table, data must be provided for all columns that do not allow NULL value. Oracle does not generate a default value for columns that have the NOT NULL constraint.
+
+In MySQL, temporary tables are database objects that are visible only to the current user session and are automatically dropped when the user session ends.Oracle differs slightly from MySQL, in that the temporary tables, once created, exist until they are explicitly dropped and they are visible to all sessions with appropriate privileges.
+
+Datatypes differ in mySql and Oracle.
+
+ In MySQL, databases correspond to directories within the data directory of the server. Tables within a database correspond to one or more files within the database directory, depending on the storage engine used for the tables.A database can contain a mix of tables of different storage engines. A storage engine is responsible for the storage and retrieval of the data for a table. eg: myISAM, BDB, innoDB etc. Some storage engines are transactional, non-transactional, indexed, non-indexed etc...
+ 
+An Oracle database consists of one or more tablespaces. Tablespaces provide logical storage space that link a database to the physical disks that hold the data. A tablespace is created from one or more data files. Data files are files in the file system or an area of disk space specified by a raw device. A tablespace can be enlarged by adding more data files. 
+ 
+
+*****what is salting password and how it is done in sql
+
+rather than storing password we store hashed value of password. But in this case dictionary attack is possible. attacker can hash all dictionary words and possibly crack. idea is to attach a random number to password and then hash. increasing the length of password makes it difficult to crack. salt and salted hash needs to be stored on server. But we can't send password reminder to user.
+
+eg in php:
+hash('sha256', $_POST['password'], $_POST['email'])
+
+$salt = time();
+$hashedPassword = sha1( $userPassword . $salt );
+
+MD5 is broken we can use SHA1/2 for hashing. in php 
+
+****** how to send mail in php 
+-- php has mail() function as follow:
+bool mail ( string $to , string $subject , string $message [, string $additional_headers [, string $additional_parameters ]] )
+
+in case of message: Each line should be separated with a CRLF (\r\n). Lines should not be larger than 70 characters.
+
+It is possible to send html messages using html within message text. then passing this message to mail().
+
+mail() function is not suitable for larger volumes of email in a loop. This function opens and closes an SMTP socket for each email, which is not very efficient.For the sending of large amounts of email we could use PEAR mail. in case of PEAR we can set host-name, username, password and then send mail. we need to configure squarrelmail or sendmail mail-servers for sending mails.
+
+***** how to lock record in db
+The basic idea of locking is that when a user modifies data through a transaction, that data is locked by that transaction until the transaction is committed or rolled back. The lock is held until the transaction is complete - this known as "data concurrency".
+
+The second purpose of locking is to ensure that all processes can always access (read) the original data as they were at the time the query began (uncommited modification), This is known as "read consistency".
+
+row-level-locking: each row within a table can be locked individually. Locked rows can be updated only by the locking process. All other rows in the table are still available for updating by other processes.
+
+table-level-locking: the entire table is locked as an entity. Once a process has locked a table, only that process can update (or lock) any row in the table. None of the rows in the table are available for updating by any other process.
+
+Exclusive lock mode (X) prevents the associates resource from being shared. This lock mode is obtained to modify data. The first transaction to lock a resource exclusively is the only transaction that can alter the resource until the exclusive lock is released.
+
+Share lock mode (S) allows the associated resource to be shared, depending on the operations involved. Multiple users reading data can share the data, holding share locks to prevent concurrent access by a writer. How long this shared lock is held depends on the isolation level of the transaction holding the lock. Transactions using the TRANSACTION_READ_COMMITTED isolation level release the lock when the transaction steps through to the next row. TRANSACTION_READ_UNCOMMITTED isolation level do not request any locks etc...
+
+***** how to connect java with oracle or mysql
+connecting java with oracle:
+
+import java.sql.*
+
+//You must register the your driver in your program before you use it. Registering the driver is the process by which the Oracle driver's class file is loaded into memory so it can be utilized as an implementation of the JDBC interfaces.
+
+Class.forName("oracle.jdbc.driver.OracleDriver");
+
+Driver myDriver = new oracle.jdbc.driver.OracleDriver();
+DriverManager.registerDriver( myDriver );
+
+
+//for different RDBMS we need to give different URL strings
+Connection connection = null;
+connection = DriverManager.getConnection(
+	"jdbc:oracle:thin:@localhost:1521:mkyong","username","password");
+connection.close();
+
+//The JDBC Statement, CallableStatement, and PreparedStatement interfaces define the methods and properties that enable you to send SQL or PL/SQL commands and receive data from your database.
+
+//PreparedStatement gives you the flexibility of supplying arguments dynamically.
+
+PreparedStatement pstmt = null;
+String SQL = "Update Employees SET age = ? WHERE id = ?";
+pstmt = conn.prepareStatement(SQL);
+
+//Three types of parameters exist: IN, OUT, and INOUT. The PreparedStatement object only uses the IN parameter. The CallableStatement object can use all three.
+
+CallableStatement cstmt = null;
+String SQL = "{call getEmpName (?, ?)}";
+cstmt = conn.prepareCall (SQL);
+
+// any of above statements can be closed using
+stmt.close();
+
+// while creating a statement we can give result_set type, result_set concurrency. type can be: TYPE_FORWARD_ONLY, TYPE_SCROLL_INSENSITIVE, TYPE_SCROLL_SENSITIVE; concurrency can be: CONCUR_READ_ONLY, CONCUR_UPDATABLE.
+
+Statement stmt = conn.createStatement(
+                           ResultSet.TYPE_FORWARD_ONLY,
+                           ResultSet.CONCUR_READ_ONLY);
+
+// there are a lot of functions by which can move through cursor , get coloumn by index or name, update coloumn by name or index, update or delete row etc..
+   
+//The JDBC driver converts the Java data type to the appropriate JDBC type before sending it to the database. It uses a default mapping for most data types. BUt for date, time, timestamp, clob, blob, ref, struct we need to use java.sql.* package.
+
+//handle null values carefullly:
+int id = resultSet.getInt(1);
+if( resultSet.wasNull( ) ) {
+   id = 0;
+}   
+  
+//by default auto-commit is enabled we can disable it by
+conn.setAutoCommit(false);  
+   
+conn.commit( );
+conn.rollback( );
+
+// we can create savepoints using
+Savepoint savepoint1 = conn.setSavepoint("Savepoint1");
+
+// we can rollback to savepoint usgin
+conn.rollback(savepoint1);
+   
+***** diff b/w application and applet
+
+Applet applications are executed in a Restricted Environment
+applets use these five methods in life cycle:
+    public void init() { }
+    public void start() { }
+    public void stop() {}
+    public void destroy() {}
+    public void paint(Graphics g) {}
+    
+Application has a single start point which is main method. they have access to system resources.    
+
+***** how can we take services of paypal or money transfer services
+after registering to paypal site we can call paypal page with POST in php. now paypal handles transaction; once this is done it redircects the user back to your site.
+
+we can use four files config.php, index.php, process.php, paypal.class.php as below:
+
+To test your PayPal store in a local server, you need to signup for PayPal Developer account and use their sandbox.
+
+config.php PHP file is used to store seller’s Paypal API information. 
+index.php is initial page where your buyers get to see your products, When buyer decides to buy, the selected product data gets posted to process.php. The downloadbale sample files also include a PHP class called paypal.class.php to interact with PayPal.
+
+you should only fetch product price from database rather than hidden input fields for security reasons, once we have the price, we can calculate and include tax details, shipping cost and discounts, which we need to set as parameters for SetExpressCheckout which returns paypal-id & token and then we call DoExpressCheckout with token giving it price and other params. then we call GetExpressCheckoutDetails to get info about our transaction.
+
+***** cart system in web do we need to store in session
+Config.php (MySql credentials and other settings)
+Index.php (list of product information from database)
+Cart_update.php (Updates cart and redirects back to products list page)
+View_cart.php (Product summery before payment)
+
+activate PHP session for our script before we start coding anything, and then we include the config file for the MySql queries.
+
+<?php
+session_start();
+include_once("config.php");
+?>
+
+whenever user clicks add to cart it is redirected to cart_update.php which adds item to cart. and return back to navigarion page. at the last of shopping he can view cart by redirecting to view_cart.php.
+
+***** how to show list of items was checkbox in java
+According to Swing philosophy, this task requires implementing two interfaces: ListCellRenderer (for drawing the checkboxes) and CellEditor (for handling keyboard and mouse events on the checkboxes). Implementing the ListCellRenderer interface is easy enough, but the CellEditor interface can be rather clumsy and hard to understand. In this particular case, I would suggest to forget CellEditor entirely and to handle input events directly, as shown in the following code.
+
+we need to intercept mouse clicks from the listbox and simulate a click on the appropriate checkbox or repaint the list.
+
+code at: http://www.devx.com/tips/Tip/5342
+
+***** how to securly save passwords in android
+we can use salted hashing to store password
+or 
+we could encrypt password and store in db
+
+***** what is string encoding and different encoding present in java
+Base-64 encoding is a way of taking binary data and turning it into text so that it's more easily transmitted in things like e-mail and HTML form data.
+
+UTF-8 is a transmission format for Unicode that is safe for UNIX file systems.
+
+If a byte array contains non-Unicode text, you can convert the text to Unicode with one of the String constructor methods. 
+eg:
+String roundTrip = new String(utf8Bytes, "UTF8");
+
+// to get bytes from a string original
+byte[] defaultBytes = original.getBytes();
+
+// to get UTF encoded bytes from original string
+byte[] defaultBytes = original.getBytes("UTF8");
+
+// using apache library
+byte[] encoded = Base64.encodeBase64(orig.getBytes());    
+
+// decode the base64 encoded string
+byte[] decoded = Base64.decodeBase64(encoded); 
+
+***** how encryption done in java -- about existing classes
+
+import javax.crypto.KeyGenerator; 
+import javax.crypto.SecretKey; 
+import javax.crypto.Cipher; 
+import sun.misc.BASE64Encoder;
+
+//KeyGenerator is used to Generate an AES key
+//SecretKey is used to store and use the generated key
+//Cipher is used for encryption and decryption purpose.
+//BASE64Encoderis for encoding of data.
+
+KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+keyGen.init(128); 
+SecretKey secretKey = keyGen.generateKey();
+
+Cipher aesCipher = Cipher.getInstance("AES");
+aesCipher.init(Cipher.ENCRYPT_MODE,secretKey);
+byte[] byteDataToEncrypt = plainData.getBytes();
+byte[] byteCipherText = aesCipher.doFinal(byteDataToEncrypt);
+cipherText = new BASE64Encoder().encode(byteCipherText)
+
+//this cipherText can be sent over network but at receiver end it needs to be decoded
+decCipherText = Base64.decodeBase64(cipherText);
+byte[] byteCipherText = decCipherText.getBytes();
+
+aesCipher.init(Cipher.DECRYPT_MODE,secretKey,aesCipher.getParameters());
+byte[] byteDecryptedText = aesCipher.doFinal(byteCipherText);
+decryptedText = new String(byteDecryptedText);
+
+***** diff b/w libraries and API
+Libraries are just chunks of useful code, APIs are the interface to those libraries.
+
+***** android framework
+The android framework is the set of API's that allow developers to quickly and easily write apps for android phones. It consists of tools for designing UIs like buttons, text fields, image panes, and system tools like intents (for starting other apps/activities or opening files), phone controls, media players, ect. Essentially an android app consists of Activities (programs that the user interacts with), services (programs that run in the background or provide some function to other apps), and broadcast receivers (programs that catch information important to your app).
+
+at the base of stack is linux kernel which consists of drivers like display driver, camera driver, wifi driver etc...
+next at stack is libraries like surface manager, media fremawork, SQLite, Webkit, SSL, OpenGL etc.. At the same level is android runtime which consists of android core libraries and dalvik virtual machine. it can interact with libraries and linux kernel. Above this stack is application framework which consists of Managers like activity manager, window manager, package manager, location manager, notification manager, content providers etc.. At the top of stack lies applications like Home, Contacts, Phone, Browser or apps written by us.
+
+***** using google maps
+for using maps we need to add google play service, maps api key in menifest file. give permissions for INTERNET, ACCESS_NETWORK_STATE, ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION in menifest file.
+
+GoogleMap map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+
+//we can place a marker over a plcae using Marker class
+Marker hamburg = map.addMarker(new MarkerOptions().position(HAMBURG).title("Hamburg"));
+
+// we can add/remove gestures, show your location on map
+// we can use "map.moveCamera" or "map.animateCamera" to 
+
+***** android interaction with database
+Android stores your database in private disk space that's associated application. Your data is secure, because by default this area is not accessible to other applications.
+
+A useful set of APIs is available in the SQLiteOpenHelper class. When you use this class to obtain references to your database, the system performs the potentially long-running operations of creating and updating the database only when needed and not during app startup. All you need to do is call getWritableDatabase() or getReadableDatabase().Because they can be long-running, be sure that you call getWritableDatabase() or getReadableDatabase() in a background thread, such as with AsyncTask or IntentService.
+
+//create class which extends SQLiteOpenHelper; in this class onCreate() functions creates table in database; onUpgrade() or onDowngrade() drop and re-create table in database.
+
+//create instance of this class and call getWritableDatabase() or getReadableDatabase() on this instance
+
+//using ContentValues we can insert values in db using db.insert( ... )
+//db.query( ... ) returns a cursor
+//db.delete( ... ) deletes rows from table
+//db.update( ... ) updates table
+
+// in above functions we generally pass selection string, with its valid-values as selection-args.eg:
+
+String selection = FeedEntry.COLUMN_NAME_ENTRY_ID + " LIKE ?";
+String[] selectionArgs = { String.valueOf(rowId) };
+
+//selectionArgs contains list for replacting ? above
+
+http://developer.android.com/training/basics/data-storage/databases.html
+
+***** POSIX
+an acronym for "Portable Operating System Interface",[1] is a family of standards specified by the IEEE for maintaining compatibility between operating systems. POSIX defines the application programming interface (API), along with command line shells and utility interfaces, for software compatibility with variants of Unix and other operating systems.
+
+***** diff types of communication among processes
+Pipes 
+
+Named pipes
+
+System V message queues, semaphores, and shared memory in "System V IPC".
+
+POSIX message queues, semaphores, and shared memory in "POSIX Interprocess Communication".
+
+"Sockets" describes interprocess communication using sockets.
+
+Mapped memory and files are described in "Memory Management Interfaces".
+
+
+***** about GTK+
+GTK+ (previously GIMP Toolkit, sometimes incorrectly referred to as the GNOME Toolkit) is a cross-platform widget toolkit for creating graphical user interfaces.GTK+ is an object-oriented widget toolkit written in the C programming language; it uses the GLib object system for the object orientation. While GTK+ is primarily targeted at the X Window System, it works on other platforms, including Microsoft Windows (interfaced with the Windows API), and Mac OS X (interfaced with Quartz). 
+GTK+ programs do not require a desktop environment made with GTK+. If the required libraries are installed, a GTK+ program can run on top of other X11-based desktop environments or window managers
+
+***** about GLib
+GLib is a cross-platform software utility library that began as part of the GTK+ project. GLib was released as a separate library so other developers, those who did not make use of the GUI-related portions of GTK+, could make use of the non-GUI portions of the library without the overhead of depending on the entire GUI library.GLib is a cross-platform library.         
+For creating GUI GTK+ needed good data-structures, objects which C doesn't provides. So GLib was developed.
+GLib provides advanced data structures, such as memory chunks, doubly and singly linked lists, hash tables, dynamic strings and string utilities, such as a lexical scanner, string chunks (groups of strings), dynamic arrays, balanced binary trees, N-ary trees, quarks (a two-way association of a string and a unique integer identifier), keyed data lists, relations and tuples.
+GLib implements functions that provide threads, thread programming and related facilities such as primitive variable access, mutexes, asynchronous queues, secure memory pools, message passing and logging, hook functions (callback registering) and timers. Also message passing facilities such as byte order conversion and I/O channels.
+
+Some other features of GLib include:
+standard macros
+warnings and assertions
+dynamic loading of modules
+a type system, GType --> for portability
+an object system, GObject --> for object orientation
+
+
+GLib package consists of 5 libraries:
+GObject
+Glib
+GModule
+GThread
+GIO --> files, stream, socket handling
+          
+GObject, and its lower-level type system, GType, are used by GTK+ and most GNOME libraries to provide:
+
+1) object-oriented C-based APIs and
+2) automatic transparent API bindings to other compiled or interpreted languages.
+
+Currently, there exist at least Python and Perl generic glue code which makes it possible to use C objects written with GType directly in Python or Perl, with a minimum amount of work.
+
+***** Gstreamer
+GStreamer is a pipeline-based multimedia framework written in the C programming language with the type system based on GObject.
+GStreamer allows a programmer to create a variety of media-handling components, including simple audio playback, audio and video playback, recording, streaming and editing.
+
+GStreamer processes media by connecting a number of processing elements into a pipeline. Each element is provided by a plug-in. 
+Elements communicate by means of pads. A source pad on one element can be connected to a sink pad on another. When the pipeline is in the playing state, data buffers flow from the source pad to the sink pad. Pads negotiate the kind of data that will be sent using capabilities.
+
+for eg: The file source reads an MP3 file from a computer's hard-drive and sends it to the MP3 decoder. The decoder decodes the file data and converts it into PCM samples which then pass to the ALSA sound-driver. The ALSA sound-driver sends the PCM sound samples to the computer's speakers.
+
+***** flow of build system          
+The GNU build system, also known as the Autotools, is a suite of programming tools designed to assist in making source code packages portable to many Unix-like systems.
+portablity is an issue as certain library functions are missing on some systems; header files may have different names.
+
+Autotools consists of the GNU utility programs Autoconf, Automake, and Libtool. GNU gettext, pkg-config, and the GNU Compiler Collection are also useful.
+
+diagram on wiki best explains how it flows.
+
+***** theory behind bayesian classifier
+( explanation in copy form wiki )
+A naive Bayes classifier is a simple probabilistic classifier based on applying Bayes' theorem with strong (naive) independence assumptions. 
+a naive Bayes classifier assumes that the presence or absence of a particular feature is unrelated to the presence or absence of any other feature, given the class variable
+
+posterior = prior x likelihood / evidence
+
+p( C|(f1,f2,...fn) ) = p(c)*p( (f1,f2,...,fn)|C )/p( f1,f2....fn )
+
+now p( f1,f2....fn ) is constant and if we consider that features are independent of each other then
+
+p( C|(f1,f2,...fn) ) = p(c) * p(f1|c) * p(f2|c) .... p(fn|c)
+
+
+
+learn about servelets and server pages jsp
+what are diff type of jdbc drivers 
+learn about how aes works
+
+
+
+
+

@@ -1,0 +1,222 @@
+check if given tree is bst:
+inefficient method is to test that for each node; max value of left sub-tree is smaller than node and min value of right sub-tree is greater than node.( some parts of tree are repeated more than once).
+rather than if we melt down the smallest and largest value subtree can acheive thus just by traversing only once each node.
+isBST( NODE *node, min, max ){
+	if( node == NULL ) return true;
+	if( node -> data < min || node -> data > max ) return false;
+	return isBST( node -> left, min, node -> data -1 ) && isBST( node -> right, node -> data + 1, max );
+}
+
+************** spiral level order traversal
+if( ltr ){
+	printLevel( root -> left, height - 1, ltr );
+	printLevel( root -> right, height - 1, ltr );	
+}else{
+	printLevel( root -> right, height - 1, ltr );
+	printLevel( root -> left, height - 1, ltr );	
+}
+
+during tree traversal take care of if/else case:
+if( root -> left ) {...}
+else { ... } // sometimes we don't want to include null cases here so use
+else if( root -> right ) instead
+
+************** diameter of a tree
+
+diameter of tree = max( diameter(left sub tree), diameter( right sub tree), height( left sub tree) + height( right sub tree ) + 1  )
+
+
+height balanced tree
+
+binary tree is height balanced if
+left sub tree is height balanced
+right sub tree is height balanced
+diff( height(left sub tree), height( right sub tree ) ) > 1
+
+************** inorder tree traversal without recursion
+
+1) Create an empty stack S.
+2) Initialize current node as root
+3) Push the current node to S and set current = current->left until current is NULL
+4) If current is NULL and stack is not empty then 
+     a) Pop the top item from stack.
+     b) Print the popped item, set current = current->right 
+     c) Go to step 3.
+5) If current is NULL and stack is empty then we are done.
+
+************** inorder tree traversal without recursion and stack can be done using morris traversal or threaded tree traversal
+no extra space is required for this
+
+1. Initialize current as root 
+2. While current is not NULL
+   If current does not have left child
+      a) Print current’s data
+      b) Go to the right, i.e., current = current->right
+   Else
+      a) Make current as right child of the rightmost node in current's left subtree
+      b) Go to this left child, i.e., current = current->left
+
+************** given inorder and preorder traversal construct tree
+take static preindex on preorder array
+search that element in inorder array ( say at index )return that element as node
+node -> left = create subtree with index -1 elements
+node -> right = create subtree with index + 1 elements
+preindex++
+
+************** catalan number
+Total number of possible Binary Search Trees with n nodes = Catalan number Cn = (2n)!/(n+1)!*n!
+
+************** child of tree
+for zero based index in arr
+left child: 2*index + 1
+right child: 2*index + 2
+
+************** returning level 
+if( root == NULL ) return 0;
+return getLevel( root -> left ) | getLevel( root -> right )
+
+here doing OR before returning result is the trick. It helps in returning non zero value.
+
+************** max-heap
+max-heapify O(lgn)
+ it is assumed that the binary trees rooted at LEFT(i) and RIGHT(i) are max-heaps, but that A[i] may be smaller than its children, thus violating the max-heap property. The function of MAX-HEAPIFY is to let the value at A[i] "float down" in the max-heap so that the subtree rooted at index i becomes a max-heap.
+
+Building a heap O(n)
+We can use the procedure MAX-HEAPIFY in a bottom-up manner to convert an array A[1-n], where n = length[A], into a max-heap.
+but why in bottom-up manner --> because of above condition; subtrees must be max-heaps.
+
+heap-increase-key: we can't just apply max-heapify from root to index( on which key is increased ) because tree below root are not max-heaps. we just need to exchange parent[index] with index if key[parent] < key[index].
+
+max-heap-insert: 
+heap-size = heap-size + 1
+A[heap-size] = -INF
+heap-increase-key( A, heap-size, key )
+
+we cannot directly put key at the end because it may conflict the heap-property. so put initially -INF which ensures heap-property and then increase its key.
+
+**** deletion of a node in  BST *****
+when node's left and right subtree is null simply delete the node
+when node has only left/right subtree; then delete that node and hook its subtree to its parent.
+when node's left and right subtree both are not null; RECURSIVELY find largest element in left subtree and replace it with node; 
+
+
+***** avl trees *****
+AVL tree is a self-balancing Binary Search Tree (BST) where the difference between heights of left and right subtrees cannot be more than one for all nodes.
+
+make insertion and searching O( log n ) rather than O( h )
+as it involves large amount of rotations Red-Black trees should be used in case of large amount of insertion/deletion involved.
+
+**** segment tree ****
+insertion O(log n)
+searching sum till index i O( log n )
+
+//very good use of recursive function
+int constructSTUtil(int arr[], int ss, int se, int *st, int si)
+{
+    // If there is one element in array, store it in current node of
+    // segment tree and return
+    if (ss == se)
+    {
+        st[si] = arr[ss];
+        return arr[ss];
+    }
+ 
+    // If there are more than one elements, then recur for left and
+    // right subtrees and store the sum of values in this node
+    int mid = getMid(ss, se);
+    st[si] =  constructSTUtil(arr, ss, mid, st, si*2+1) +         // left child creation
+              constructSTUtil(arr, mid+1, se, st, si*2+2);	      // right child creation
+    return st[si];
+}
+
+**** left rotate and right rotate *****
+when using rotation in trees like AVL, splay.. its good to write functions like leftRotate(), rightRotate() which should return  the node pointer for new root.
+
+**** splay tree ****
+imp functions: leftRotate(), rightRotate(), splay()
+
+**** interval tree ****
+Interval overlappingIntervalSearch(root, x)
+1) If x overlaps with root's interval, return the root's interval.
+
+2) If left child of root is not empty and the max  in left child 
+is greater than x's low value, recur for left child
+
+3) Else recur for right child.
+
+***** check if binary tree is foldable( structurally mirror tree )
+rather than starting from root, we start with left and right pointers.
+
+approach 1:
+mirror the left subtree
+parallely traverse left and right subtree
+if inequality found return false else return true
+
+approach 2:
+send left & right pointers and traverse tree
+if inequality found return false else return true
+
+ if (n1 == NULL && n2 == NULL) // this case is handled before one of them is NULL
+    {  return true;  }
+ 
+    /* If one of the trees is NULL and other is not,
+      then return false */
+ if (n1 == NULL || n2 == NULL)
+    {  return false; }
+
+***** inorder succesor of BST
+method 1: use parent pointer
+
+method 2: if right of node is not NULL then successor is min of right of node
+else iteratively travese tree from root in a searching way:
+n is node whose successor we need to find
+
+    while (root != NULL)
+    {
+        if (n->data < root->data)
+        {
+            succ = root;
+            root = root->left;
+        }
+        else if (n->data > root->data)
+            root = root->right;
+        else
+           break;
+    }
+
+***** in classic coin puzzle
+remember to group coins in such a way that genuine coin is revealed at first weighinig. DONT think that we always have to divide coins in groups of 3 each. I think we divide coins in 3 groups.
+
+***** no of bst's possible from n distinct keys
+T(n) = sum(i=1:n) { T(i-1)T(n-i) }
+
+base cases: T(0) = T(1) = 0
+so T(2) = T(0)T(2) + T(1)T(0) = 2
+similarly go on...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

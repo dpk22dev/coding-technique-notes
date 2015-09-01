@@ -1,0 +1,12 @@
+*** finding nearest k elements in sorted array ***
+find crossover point, where elements on right are greater than elements on left
+move in opposite direction keeping count and comparing elements
+
+*** sorting n elements in range 0-n^2-1 in O(n)***
+if we use counting sort, keeping hash for each number its n^2 actually 
+we can use radix sort for this
+
+*** binary search in almost sorted array ***
+get mid point, compare with mid-1, mid, mid+1 position elements, if matched return index
+other wise we know elements on left are smaller and on right are larger, so recurse with mid-2, mid+2
+

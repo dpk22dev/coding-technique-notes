@@ -1,0 +1,82 @@
+****
+if top1 < top2; two stacks grow in opp directions; then conditino for "stak full" if space is to be used efficiently is:
+top1 = top2 - 2
+
+don't think it top1 = MAXSIZE/2 and top2 = MAXSIZE/2+1 as we don't need fixed MAXSIZE/2 stacks
+
+****
+in a circular q condition for full and empty is:
+rear+1 mod n == front , front == rear // as we insert at rear; we begin with front = rear = 0; then keep on filling at rear means keep rear ahead of front
+
+its not as below:
+front+1 mod n == rear, rear == front // as we don't insert at front
+
+****
+if Q is implemented as two stack; then #of push( say x ) and pop( say y ) operations when n insert and m delete are done are:
+
+we need to find #push in best and worst case; similarly #pop in best and worst case.
+
+n+m <= x < 2n and 2m <= y <= n+m
+
+****
+if we are given 3 ops PUSH, POP, REVERSE on a stack and we need to imlement queue using it
+
+then enque, deque can take 2,2 or
+enque, deque can take 1,3 or
+enque, deque can take 3,1 instructions
+
+****
+A full binary tree (sometimes proper binary tree or 2-tree or strictly binary tree) is a tree in which every node other than the leaves has two children. A complete binary tree is a binary tree in which every level, except possibly the last, is completely filled, and all nodes are as far left as possible.
+
+it looks like full binary tree is a complete binary tree but its not true for following case
+
+		12
+	20		30
+		20		40
+
+similarly complete binary tree may not be full bt eg:
+
+		12
+	20		30
+23
+
+*****
+for k ary tree; with n internal nodes; total #of leaves is:
+n(k-1) + 1
+
+*****
+for k-ary tree where each node has n children or no children; following holds:
+
+L = (k-1)*I + 1
+
+*****
+The height of a binary tree is the maximum number of edges in any root to leaf path. 
+
+that's why height of root is 0.
+
+****
+if we store binary tree with n nodes in array; min size of array should be
+2^n - 1
+
+consider a right skewed binary tree; elements will be stored at 1, 3, 7, 15
+
+**** 
+worst case height of balanced AVL tree is:
+1.44log( n ) using some fibonacci trees
+
+worst case height of balanced RB tree is:
+2log( n+1 ) for 
+AVL, RB, splay tree all of them are self-balancing BST
+
+AVL tree are more balanced than RB tree but for frequent insertion/deletion RB tree should be referred as they involve less rotations.
+
+
+In RB tree path from root to farthest leaf is no more than twice the path from root to nearest leaf.
+
+
+
+
+
+
+
+

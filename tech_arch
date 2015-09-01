@@ -1,0 +1,269 @@
+gates are used for computational purposes
+flip-flop are used for storage purposes, so registers are group of flip-flops
+multiplexers for m to n functioning ( m < n )
+decoder for m to n functioning ( m > n )
+
+these h/w are used to make circuits having functionality for arithmatic like addition, subtraction, increment, decrement etc.. and microoperations like load, shift, count etc.. and logic operations like and, or, xor, nand etc..
+
+complements are used to simplify subtraction operation and logical manipulation
+negative no's can be represented by:
+signed magnitude       -- awkward in arithmatic computaiotn
+signed 1's compliment --- two values for +0 and -0
+signed 2's compliment --- good
+
+ebcdic of ibm is same as ascii but assignment of number to characters is different
+
+single bit error detection can be done using parity check
+
+microperations like shift, count, clear and load can change the contents of registers
+
+register transfer language: representation of operations that can be performed on registers.
+
+rather than connecting each register with each other we have common set of wires or bus. control signal determines which register owns the bus.
+
+3 state buffer bus can be used which reduces # of multiplexer required and uses few decoder instead.
+
+instead of having individual registers performing the microoperations computer systems employ a number of storage registers connected to common operational unit called ALU. ALU is combinatiorial circuit so register transfer from source to destination circuit can be done in single clock pulse.
+
+computer instruction is a binary code that specifies sequence of microoperations. instructions and data of program are stored in memory. computer reads instructions( which consists of operations) in control registers. it then interprests the operation code bits. it then initiates sequence of control signals which performs the microops given in instructions.
+instruction code not only specify opcode but also registers or memory words where data cann be found.
+opcode + operand = control operation read from memory.
+operand can have direct address or indirect address of memory.
+
+clock pulses are applied to all flip-flops and registers in system.( including in control unit ). state of register is not changed on a clock pulse untill resgister is selected by conrol unit.
+
+control can be hardwired faster, implemented using flip-flops, gates etc.
+or programmed.
+
+output of control logic circuit are:
+signal to control input of nine( simple comp ) registers
+signals to control read/write inputs of memory
+signal to select a register for bus
+signal to control arithmetic and logic circuit
+
+memory that is part of control unit is called control memory( generally ROM ) which contains microprogrammed control. computer with microprogrammed control contains two memories: main memory and control memory. in microprogrammed control we can change the microprogram in control memory but in hardwired control we can't do it.
+
+each computer instruction say ADD has its own routine in control memory to generate microoperations that execute the instructions.
+
+next address generator( sequencer ) --> control address register --> control memory( ROM ) --> control data register 
+^																													|
+|-------------------------------------------------------------------------------------------------------------------
+
+
+sequencer loads the initial address to start instructions, loads next sequence address in control address register. control data register or pipeline register allows execution of microoperation specified by control word as well as next address generation.
+
+microinstructions in control memory are stored in groups, each group specifying a routine.
+
+general overview of memory partitions memoy into three segments program segment, data segment, stack segment. register AR for data segment, register PC for program seg, SP for stack seg.
+
+computers can use 3 address instruction can use register/address as each operand, 2 address instruction, 1 address instruction use AC as default register, _0 address instruction use stack only computation like calculator.  
+
+the way operands are chosen during program exec depends on addressing mode of instruction. mode bit specifies mode like:
+implied mode: stack in zero instruction computer
+immediate mode: rather than address operand is specified in address field
+register mode: operand is register ( k bit field to select 2^k registers )
+register indirect mode,
+autoincrement or decrement mode, direct address mode, indirect address mode, relative address mode, relative address mode, indexed addressing mode, 
+base register addressing: content of base register are added to instruction address to obtain effective address. useful in relocation.
+
+in assembly language sometime we change addressing mode. eg: LDI for load immediate
+
+alu si supplemented with status bit register which contains carry bit, sign bit, zero bit, overflow bit etc.
+
+collection of all status bits is called program status word(PSW). it contains status bit showing mode supervisor or user mode. supervisor mode when OS is executing as certain operations are permitted in this mode and user mode when user program is executing.
+
+in case of an interupt begining address is determined by h/w rather than address field of instruction. 
+
+interupt types:
+exteranl: I/O device for start/end of transfer of data, timeout of program exec, battery down etc
+
+internal: caused by errorneous instruction like div by 0, stack overflow, protection violation, register overflow etc. when program is rerun these will happen again at same place. Also called TRAPS.
+
+ext/int intrupts are raised by CPU during program exec. but s/w interrupt is initiated by a program. eg: switching user mode to supervisor mode.
+
+CISC: complex instruction set achitecture -- computer with large number of instrution set
+goal is to provide machine instruction for every statement written in high level language.
+variable length instruction allowance
+large varieties of addressing modes
+direct memory manipulation 
+h/w logic grows for complex instructions and becomes slow
+
+RISC: reduced instruction set architecture 
+goal is to reduce execution time by simplying the instruction set
+few instructions, addressing modes
+memory access limited to load and store
+hard wired rather than microprogrmed control
+fixed length instrcution set
+
+ability to execute one instruction per clock cycle by overlapping of fetch decode and execute by pipelining; so large number of registers req in CPU.
+
+parallel processing can be viewed from various levels of processing. parallel processing at lowest level can be differentiated with registers used: shift or parallel load registers. at higher level can be viewed with multiplicity of functional unit performing same or different operations.
+parallel processing acan be acheived by distributing data among multiple functional units by control logic.
+
+seq of instructuins read from mem: instruction stream
+seq of data read from mem: data strream
+
+SIMD : single instruction multiple data stream, SISD, MIMD, MISD
+
+pipeline is similar to car assembly line where multiple cars are being assembled at same time. 
+data pipeline good for applications that need to do same task for multiple set of data.
+instruction pipleine - may cause resource conflicts, data dependency, brach disputes
+
+many large data tasks are done in arrays. so use vector processing to reduce time. in one instruction whole array is processed; more complex h/w is required.
+
+modular memory: different set of addresses are assigned to different modules. eg: even addresses to one module and odd addresses to other module. so addresses can be fetched simultaneoulsy. so n variables can be fetched simultaneoulsy frm n way interleaved memory modules.
+
+in ascii there are three types of chars:
+format chars eg:tab
+info separator eg: record separator
+control chars eg: STX dtart of text
+
+there are differences in CPU and peripherals therefore special h/w "interface" is needed to sync and supervise data transfer among them. In addition each device may have its own "controller" that supervises operations of particular mechanism in peripheral.
+means each device has interface and controller.
+
+I/O bus consists of data lines, address lines, control lines.
+
+I/O bus from processor is connected to each interface. to communicate processor puts address of device on address line. each interface decodes the address; when it founds its own address; it activates the path b/w bus and its controller.
+
+interface responds to function-code/command - control,  status, data-input, data-output
+
+control: command to activate device and ask it what to do
+status: command to get status of peripheral
+data-out: place data from bus in interface bufer which then transfers it to controller to store in device
+data-in: place data  from buffer in interface to bus
+
+eg: processor sends control to rewind tape; check the status of tape; when it reaches at specified positon; put data on data-bus and send data-out.
+
+memory and control buses can be used in 3 ways:
+diff memory and control bus: separate IOProcessor is used; memory is connected to CPU and IOP through bus. IOP is also called data channel.
+
+common memory and control bus excpet diff control lines: control lines determine whether address on bus is for memory or I/O device; also called Isolate I/O. 
+
+common memory and control bus: in this confg CPU assumes interace register as part of memory system.
+
+each device has its own clock so asynchronous data transfer is done by strobe pulse. or by sending control signal along with data to indicate presence of data on data bus; called handshaking.
+
+timing diagram shows that strobe pulse is high when source has put data on bus. destination will put data in its registers when strobe goes down. after strobe going down source will remoce data from bus.
+
+strobe pulse disadv is that src has no way to know that dest has received data. similarly dest has no way to know that src has actually placed data on bus. handshaking solves this problem by using second control signal that provides reply to unit that initiated connection.
+
+for src initiated transfer: we use data valid, data accepted signals.
+src first places data on bus and put data valid control. dest after accepting all data put data accepted on control. dest will disable data accepted when it is ready to accept data.
+
+for dest initiated transfer: we use ready for data, data valid signal.
+
+dest first sends ready for data, src on receiving ready for data put data on bus and enables data valid signal. dest after receiving data from bus disables ready for data. now src removes data from bus.
+
+in case of timeout( one side is faulty or due to any reason transfer does not happen) interrupt is generated which is processed by cpu.
+
+thus handshaking mech provides flexible way of data transfer b/w diff speed devices.
+
+for synchronous transmission both the devices must be driven by same clock. but if devies are distance apart both are driven by diff clock but same freq. these clocks are synchronised by sync signals at regular intervals.
+
+in asynchronous transmission cpu has to come in between. data is transfered from sender to transmitter register which after checking status register sends bits to shift register. data is now transfered to receiver's shift register which put data parallaly to receiver's register after checking status register's status.
+
+programmed I/O: i/o is done in program. keeps cpu busy by continuously checking interface if any data from device is available. not good.
+
+Interrupt initiated I/O: cpu switches to some other task. device when completes its I/O intrupts and cpu switches back to same task.
+
+DMA: cpu gives the start address and no of bytes to write interface which directly transfers data to memory. mean while cpu delays its access to memory.
+
+non-vectored interupt: branch address is assigned to be fixed address in memory.
+vectored interrupt: branch address is supplied by the source that generated the interrupt. eg any address in memory.
+
+software priority interrupt: softwarically resolve the devices communication interrupts. in case of interrupt jump to common brach address from where each interrupt is polled according to priority and there service routines are callled.
+
+it can be speed up by using h/w priority interrupt.
+
+daisy chaining consists of serial chaining of all devices that request an interupt acc to their prioriy,
+
+parallel priority interupt: uses priority register whose bits are set acc to priority of interrupts, mask register is used to mask bits of priority register in case of high priority interupt arrives when low priority interrupt is already there.
+
+data word is gathered by IOProcessor from device and transferred to memory while cpu is doing its work by memory cycle stealing.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+******** questions ***** 
+know practivally how exactly is data stored on CD/HDD
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

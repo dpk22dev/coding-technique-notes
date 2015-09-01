@@ -1,0 +1,119 @@
+good summary:
+https://technet.microsoft.com/en-us/library/cc786128%28v=ws.10%29.aspx
+
+A: PDU
+T: segments ( size acc to header: 64K )
+N: packets  ( size acc to header: 64K ), but i think sends of size MTU because router is reachable to this point
+D: frames ( MTU )
+
+different networks have different MTU( maximum transmission unit ), means maximum size of packet that can go through this network. 
+eg: ethernet: 1500bytes, wifi 2300 bytes and different versions of these have different MTU values
+
+we handler different network MTU by following techniques:
+1) fragmentation: if frame size is big, fragment it into smaller frames. but it is done at IP layer. 
+eg: H1 -> R1 -> R2 -> R3 -> R4 -> H2
+
+here R2 checks that MTU for network to R3 is less, so it fragments IP packet ( into size acc to MTU between R2 and R3 ). It is possible because IP packet header contains fields:
+fragment#, MF more fragments are coming
+
+now R3 -> R4 has suppose higher MTU but routers don't combine fragmented packets(performance may be), then H2 can resemble packets.
+
+2) use IP to send packet with DF( don't fragment ), maximum MTU, if there is any path wiht less MTU, it will reply back with ICMP, next try will smaller size IP and thus find proper MTU
+
+although segment and packet size at TCP and IP layer can be of 64K size but practically its much lower. during tcp handshake MSS( maximum segment size ) is calculated in such a way that minimum fragmentation needs to be done at IP/data link layer.
+MTU( between two systems with networks in between ) depends on underlying technology, eg 1500 for ethernet
+Now MSS can be 1500 - 20( ip header ) -20( tcp header ) = 1460 bytes
+
+there is limit of minimum size of packet sent by data link layer for each topology. for sender to detect collision it should still be sending same packet before collision message arrives from receiver. so t > 2T( t = time to send packet, T = time to transmit single bit from source to destination )
+eg: for ethernet lan minimum size of packet is 64 bytes, so when no data is to be sent, 64-46 bytes are padded to send packet
+
+that's why minimum packet size, bit-rate, length of topology is determined by IEEE
+
+don't confuse it with congestion. congestion happens when receiver can accept frames but network or receiver is slow and sender is sending frames at high speed. so for sender needs ack to find out what frames have been received correctly/error-free.
+but collision is used to detect if receiver is currently talking to some other sender( say at same frequency ), we can not even send frame right now. 
+
+
+
+*** how signal is created and detected by antenna ***
+when ac current is applied to antenna, electrons vibrate and create em wave. acc to screw rule this wave has to move forward. on receiver when wave strikes current is generated and detected as signal.
+
+bandwidth is not same as mouth of pipe. it is the range of frequenceis available. FCC defines this range, eg: in air or common mediums we get range of frequencies, so bandwidth = highest freq - lowest freq. measured in Hz
+but in cable we have our own cable we can send digital signal directly. here in digital signal we calculate bitrate: how many bits can we transfer per sec. measured in bits/sec
+
+a network administrator can divide any network into sub-networks by using subnet mask
+***** how routing is done
+When both are on same network: the host address bits are used to identify the host within the network.
+Both are on different networks: the router uses the network mask to identify the network and route the packet. The host can be identified using the network host address.
+The network layer is responsible for making routing decisions. A routing table is used to store the path information and the cost involved with that path, while a routing algorithm uses the routing table to decide the path on which to route the packets.
+Routing is broadly classified into Static and Dynamic Routing based on whether the table is fixed or it changes based on the current network condition.
+
+analog signal: consider like an antenna with some freq of pole changes, accelerated/de accelerated e will release analog signal; it can be sent in air; or in copper wire
+digital signal: consider torch on and off for some nano-second, receiver must be capable of differentiating signals at these intervals to read this signal
+
+how to send digital signal on analog medium:( modulate digital signal over analog signal )
+ASK: for digital 1 send analog signal for nano-sec, for digital 0 don't send any signal
+PSK: for digital signal 0 don't shift phase of analog signal, for 1 change phase
+FSK: for digital 1 send analog signal of some freq and for signal 0 send analog signal of other freq
+
+how to send analog signal over digital medium:
+break analog signal into multiple voltages and map each voltage with some digital value. eg: break analog signal into 8 levels, and send each level digitally over digital medium
+
+we can't send digital data directly for long distances as dc component will be difficult to detect after distortion. sometimes 1 goes below thresold level on receiver or 0 goes higer.
+so we use encoding for sending digital data over digital signal, we can say that transition from 0 to 1 is digital 1 and transition from 1 to 0 is digital 0. thus easily detection of digital signal even at large distances	
+
+we can't send exact frequency signal, so band of signals is provided to user( say radio/ tv channel )
+
+simplex: fm, radio or tv signals
+half duplex: walkie talkie used by army
+full duplex: mobile phone
+
+*** socket programming ***
+socket programming api is very well designed keeping client/server architecture
+socket() : tell it about address family to use, tcp or udp protocol to use, it create socket file and returns it
+in *nix everything is file so we use this socket-descriptor to do any operation in future
+but this socket has no address associated yet, we can do so using bind() system call
+now a process can handle multiple sockets, eg: nginx or apache
+similarly we have:
+Listen() : show willingness to listen on socket, giving queue size
+Accept(): block caller untill connection request arrives ???
+Connect(): actively attemtp to connect
+Send():
+Receive()
+close()
+
+*** why do we even need window protocol at both tranport and data link layer ***
+we need to consider error can occur at any level, and can go undetected.
+link layer blindly passes packet from hop1 to hop2. now its hop2 link layer responsibility to pass packet from hop2 to hop3 as hop1 has slided its window. suppose IP addr changes now and packet goes to some other IP address. link layer on host thinks that packet has reached( whether to correct dest IP:port or not it doesn't care ). transmission layer window knows that it hasn't got ack for sent packet, it then retransmits. only upon receiving ack it slides window
+
+
+*** communication among routers ***
+I think ips are assigned by icann to local registerars which distribute them to ISPs. But it depends on ISP router they install is Core Gateway or non-core. similar medium they use ( eg wiring, optical fibre, statelite links ) determine bandwidth of channel. Now according to load they can use different capacity routers. eg: if ip being used for companies, they should install better Routers. Within their autonomous system they have choice to use routing protocol( RIP, OSPF ). their AS routers can exchange info with routers in other AS using EGP or BGP. Now if ISP install core gateways, they should communicate using GGP.
+Each router knows about network around it. When these routers share info, they create a graph using this info and calculate shortest path. If path is not in their graph they send packet to default router.
+It depends on us how we want to physically connect routers, deciding network has tree structure( having single point of failure ) or graph structure.
+
+*** why are we using nonce instead of timestamp in KDC needham-shroeder protocol ***
+first why we need kdc, two scenarios:
+1KDC, 1000 clients: 1000 keys shared b/w client and kdc
+1000 clients: 1000*1000 keys shared b/w clients
+
+why timestamp or incremental key acceptance is bad, A gets cracked, C sends highest ( 2^32 ) number to B. even when A gains consciousness, it sends any number as timestamp it gets rejected by B( it expects next number to be greater than 2^32 ).
+
+but nonce can be random, so they can be replayed. so need to figure out solution for it, which needham-shroeder provide.
+
+
+*** questions ***
+is sliding window for each connection at tcp level and data lnk layer level or is it common for all connections
+why diff address family or protocol family available in socket programming? what they correspond to in tcp/ip stack
+why we need error checking at transmission layer when we are doing CRC check at link layer? 
+i know there are set of 13 root servers across world, but how is data stored in these server.. is it like .com and .net will be stored in root-K server OR any data can be stored in any server OR every data is stored in every server
+is the default router always supernet router
+diff b/w mac layer broadcast vs ip layer broadcast
+unicast vs anycast vs multicast vs broadcast
+why can't we just assign an IP free or used-by-others to us
+nas vs das vs san
+why nameservers are used
+distributed computing vs cloud vs cluster
+
+
+
+

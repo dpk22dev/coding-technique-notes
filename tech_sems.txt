@@ -1,0 +1,3 @@
+sem 3:
+OS[silberchatz, tennanbaum] we studied system calls and made changes in MINIX os in lab assignments
+like changing banner, adding new user to OS, create a new command lspath by changing source code of ls and makefile

@@ -1,0 +1,654 @@
+The generic minimum spanning tree algorithm maintains an acyclic subgraphFof the input graphG,which we will call anintermediate spanning forest.Fis a subgraph of the minimum spanning tree ofG,and every component ofFis a minimum spanning tree of its vertices. Initially,Fconsists ofnone-nodetrees. The generic algorithm merges trees together by adding certain edges between them. When thealgorithm halts,Fconsists of a singlen-node tree, which must be the minimum spanning tree. 
+safe( single vertex in forest), useless( both comp in forest), undecided (neither safe nor useless)
+The minimum spanning tree contains every safe edge and no useless edges
+
+One of the many applications of disjoint-set data structures arises in determining the connected components of an undirected graph.
+
+*********** disjoint sets
+without path-compression and union by rank --> O(n)
+with this -> log(n) : height of tree is not deep
+
+MAKE-SET, FIND-SET, UNION are functions of disjoint data structures.
+
+MAKE-SET(x)
+1 p[x] ← x
+2 rank[x] ← 0
+
+UNION(x, y)
+1 LINK(FIND-SET(x), FIND-SET(y))
+
+LINK(x, y)    // we can assume it gets root of sets as parameters passed are after FIND-SET(x) which does path compression and returns root
+1 if rank[x] > rank[y]
+2	 then p[y] ← x
+3 else p[x] ← y
+4 	if rank[x] = rank[y]
+5		 then rank[y] ← rank[y] + 1
+
+FIND-SET(x)
+1 if x ≠ p[x]
+2	 then p[x] ← FIND-SET(p[x])
+3 return p[x]
+
+for m operations on n elements running time of combined path compression & union by rank is O( m alpha(n) )
+
+
+When the edges of the graph are "static"-not changing over time-the connected components can be computed faster by using depth-first search (Exercise 22.3-11). Sometimes, however, the edges are added "dynamically" and we need to maintain the connected components as each edge is added.
+
+for linked list representation of disjoint set The total number of operations is 2n - 1, and so each operation on average requires Θ(n) time. That is, the amortized time of an operation is Θ(n).
+
+In a faster implementation of disjoint sets, we represent sets by rooted trees, with each node containing one member and each tree representing one set.
+
+rooted-tree rep doesn't improve ll running-time. using heuristics union by rank idea is to make the root of the tree with fewer nodes point to the root of the tree with more nodes. path-compression: during FIND-SET operations to make each node on the find path point directly to the root. Path compression does not change any ranks. If the roots have unequal rank, we make the root of higher rank the parent of the root of lower rank, but the ranks themselves remain unchanged. If, instead, the roots have equal ranks, we arbitrarily choose one of the roots as the parent and increment its rank.
+
+union by rank is implemented in union and path-compression is implemented in find 
+
+************* BFS
+
+To keep track of progress, breadth-first search colors each vertex white, gray, or black. All vertices start out white and may later become gray and then black. A vertex is discovered the first time it is encountered during the search, at which time it becomes nonwhite. Gray and black vertices, therefore, have been discovered, but breadth-first search distinguishes between them to ensure that the search proceeds in a breadth-first manner. 
+
+the total running time of BFS is O(V + E). Thus,
+breadth-first search runs in time linear in the size of the adjacency-list representation of G.
+
+if shortest path is denoted by number of edges required to reach the node; then BFS finds the shortest path; because it first finds all nodes which are at distance 1 then all nodes at dist 2; similarly goes on...
+
+The predecessor subgraph Gπ is a breadth-first tree if Vπ consists of the vertices reachable
+from s and, for all v Vπ , there is a unique simple path from s to v in Gπ that is also a shortest
+path from s to v in G.
+
+Unlike breadth-first search, whose predecessor subgraph forms a tree, the predecessor subgraph produced by a depth-first search may be composed of several trees.
+
+the first timestamp d[v] records when v is first discovered (and grayed), and the second timestamp f [v] records when the search finishesVertex u is WHITE before time d[u], GRAY between time d[u] and time f [u], and BLACK thereafter. four edge types in terms of the depth-first forest Gπ produced by a depth-firstsearch on G. tree edge, back edge, forward egde, cross edge
+
+that each edge (u, v) can be classified by the color of the vertex v that is reached when the
+edge is first explored (except that forward and cross edges are not distinguished):
+WHITE indicates a tree edge with d[u] < d[v] < f[v] < f[u],
+GRAY indicates a back edge with  d[v] < d[u] < f[u] < f[v], and
+BLACK forward edge with d[u] < f[u] < d[v] < f[v].; it should be d[u] < d[v] < f[v] < f[u 
+BLACK indicates a cross edge with d[v] < f[v] < d[u] < f[u]  // acc to def edges except three above are cross edge
+
+i think both color and d,f vectors are used in determining edge types. If color of visites node is white its tree edge, if its grey its back edge; if its black we need to compare d,f vectors.
+
+The third case handles the remaining possibility; it can be shown that such an edge (u, v) is a forward edge if d[u] < d[v] ( HOW ) and a cross edge if d[u] > d[v]. In an undirected graph, there may be some ambiguity in the type classification, since (u, v) and (v, u) are really the same edge. In such a case, the edge is classified as the first type in the classification list that applies.So:
+
+In a depth-first search of an undirected graph G, every edge of G is either a tree edge or a back edge.
+
+There is no forward edges because they become back edges when considered in the opposite direction. There cannot be any cross edge because every edge of G must connect an ancestor with a descendant.
+
+because if an edge is linked to u; it will be explored first when u is explored because direction doesn't matter. 
+ u ---- v is explored when u is getting explored. but u <----  v can not be explored due to direction and when v is explored it considers this edge to be forward or cross edge. so in undirected graph every edge of G is either a tree edge or a back edge.
+
+BFS(G, s)
+1 for each vertex u in V [G] - {s}
+2	 do color[u] ← WHITE
+3	 d[u] ← ∞
+4	 π[u] ← NIL
+5 color[s] ← GRAY
+6 d[s] ← 0
+7 π[s] ← NIL
+8 Q ← Ø
+9 ENQUEUE(Q, s)
+10 while Q ≠ Ø
+11	 do u ← DEQUEUE(Q)
+12		 for each v in Adj[u]
+13			 do if color[v] = WHITE
+14				 then color[v] ← GRAY
+15					 d[v] ← d[u] + 1
+16					 π[v] ← u
+17					 ENQUEUE(Q, v)
+18		 color[u] ← BLACK
+
+************* DFS
+DFS(G)
+1 for each vertex u in V [G]
+2	 do color[u] ← WHITE
+3	 	π[u] ← NIL
+4 time ← 0
+5 for each vertex u in V [G]
+6	 do if color[u] = WHITE
+7	 then DFS-VISIT(u)
+
+DFS-VISIT(u)
+1 color[u] ← GRAY ▹White vertex u has just been discovered.
+2 time ← time +1
+3 d[u] ← time
+4 for each v in Adj[u] ▹Explore edge(u, v).
+5	 do if color[v] = WHITE
+6	 then π[v] ← u
+7		 DFS-VISIT(v)
+8 color[u] <- BLACK ▹ Blacken u; it is finished.
+9 f [u] ▹ time ← time +1
+
+
+when using own stack and no recursion start, finish time will not work. so can't use to detect cycle.
+if u want to work around when using own stack to fill vertices always remember to push current element on stack after recursive call to neighbout elements.
+
+NOTICCE: do not push all adjecent elements to vertex v on stack as we do in bfs in queue. we need to push one adjacent element and call dfs on it then push other element.
+
+************* TOPOLOGICAL-SORT
+
+A topological sort of a dag G = (V, E) is a linear ordering of all its vertices such that if G contains an edge (u, v), then u appears before v in the ordering. (If the graph is not acyclic, then no linear ordering is possible.) 
+
+TOPOLOGICAL-SORT(G) -->O( V+E )
+1 call DFS(G) to compute finishing times f[v] for each vertex v
+2 as each vertex is finished, insert it onto the front of a linked list
+3 return the linked list of vertices
+
+source will have largest finishing time. as we are inserting each vertex in begining of list. node with smallest finishing time  goes to last.
+
+it is  different from DFS as we need to show vertices in thier decreasing order of finishing times
+
+************* strongly connected components
+a graph is said to be strongly connected if every vertex is reachable from every other vertex or we can say if there is a path in each direction between each pair of vertices of the graph.
+
+Given an adjacency-list representation of G, the time to create G_transpose is O(V + E). It is interesting to observe that G and G_transpose have exactly the same strongly connected components: u and v are reachable from each other in G_transpose if and only if they are reachable from each other in G.
+
+STRONGLY-CONNECTED-COMPONENTS (G) --> O( V + E)
+1 call DFS (G) to compute finishing times f[u] for each vertex u  
+2 compute G-trans
+3 call DFS (G-trans), but in the main loop of DFS, consider the vertices in order of decreasing f[u] (as computed in line 1)
+4 output the vertices of each tree in the depth-first forest formed in line 3 as a separate strongly connected component
+
+when we reverse graph source become sink, now we process vertices sink to source. that why we start in decreasing order of f[u] in step 3.
+However, if we do a DFS of graph and store vertices according to their finish times, we make sure that the finish time of a vertex that connects to other SCCs (other that its own SCC), will always be greater than finish time of vertices in the other SCC.
+
+reversing the direction of edges doesn't effect SCC but graph with single edge gets disconnected.
+
+in adjaceny-list for finding reverse of list use:
+Graph g[V];
+
+for( v = 0; v < V; v++ ){
+    for( i = 0; i != list.end;; i++ ){
+        g.list[i] = v;
+    }
+}
+
+************* check directed graph is strongly connected or not
+simple approach: floyd warshall to find transitive closure of graph: O( V^3)
+or
+do DFS for each vertex and find whether all vertices are visited or not: O( V*(V+E) )
+
+Kosaraju's Strongly connected component algo: O( V + E )
+1) Initialize all vertices as not visited.
+2) Do a DFS traversal of graph starting from any arbitrary vertex v. If DFS traversal doesn’t visit all vertices, then return false.
+3) Reverse all arcs (or find transpose or reverse of graph)
+4) Mark all vertices as not-visited in reversed graph.
+5) Do a DFS traversal of reversed graph starting from same vertex v (Same as step 2). If DFS traversal doesn’t visit all vertices, then return false. Otherwise return true.
+
+The idea is, if every node can be reached from a vertex v, and every node can reach v, then the graph is strongly connected. In step 2, we check if all vertices are reachable from v. In step 4, we check if all vertices can reach v (In reversed graph, if all vertices are reachable from v, then all vertices can reach v in original graph).
+
+strongly connected component finding in undirected graph is vague. if every vertex is reachable in single DFS in undirected graph, graph is SCC otherwise not.
+
+************* articulation point
+
+An articulation point of G is a vertex whose removal disconnects G. 
+
+1) For every vertex v, do following
+--Remove v from graph
+--See if the graph remains connected (We can either use BFS or DFS)
+--Add v back to the graph
+
+above takes O( V*(V+E) )
+
+****** Tarjan’s algorithm for finding articulation points ****
+runs in O( V + E )
+
+In DFS tree, a vertex u is articulation point if one of the following two conditions is true.
+1) u is root of DFS tree and it has at least two children.
+2) u is not root of DFS tree and it has a child v such that no vertex in subtree rooted with v has a back edge to one of the ancestors (in DFS tree) of u.
+
+We do DFS traversal of given graph with additional code to find out Articulation Points (APs). In DFS traversal, we maintain a parent[] array where parent[u] stores parent of vertex u. Among the above mentioned two cases, the first case is simple to detect. For every vertex, count children. If currently visited vertex u is root (parent[u] is NIL) and has more than two children, print it.
+How to handle second case? The second case is trickier. We maintain an array disc[] to store discovery time of vertices. For every node u, we need to find out the earliest visited vertex (the vertex with minimum discovery time) that can be reached from subtree rooted with u. So we maintain an additional array low[] which is defined as follows.
+
+low[u] = min(disc[u], disc[w]) 
+where w is an ancestor of u and there is a back edge from 
+some descendant of u to w.
+
+althouh it looks like how to find whether there exists edge from descendent to ancestor, it looks like more work. but key point is that while using DFS we are using recursion, so information can be passed down the DFS tree and retreived from it.
+
+************* bridges in a graph ************* 
+takes O( E*(V+E) )
+
+1) For every edge (u, v), do following
+--Remove (u, v) from graph
+--See if the graph remains connected (We can either use BFS or DFS)
+--Add (u, v) back to the graph.
+
+or we can do it in O( E + V ) using modified tarjan's algo as we found articulation point:
+
+The condition for an edge (u, v) to be a bridge is, “low[v] > disc[u]“.
+
+************* check graph is biconnected or not ************* 
+
+A connected graph is Biconnected if it is connected and doesn’t have any Articulation Point. We mainly need to check two things in a graph.
+1) The graph is connected.
+2) There is no articulation point in graph.
+
+we can do DFS traversal and check if it has articulation point or not. which can also show us if graph is connected or not.
+
+************* euler tour
+ 
+An Euler tour of a connected, directed graph G = (V, E) is a cycle that traverses each edge of G exactly once, although it may visit a vertex more than once.
+
+Eulerian Path is a path in graph that visits every edge exactly once. Eulerian Circuit is an Eulerian Path which starts and ends on the same vertex.
+
+A graph is called Eulerian if it has an Eulerian Cycle and called Semi-Eulerian if it has an Eulerian Path.
+
+Eulerian cycle:
+An undirected graph has Eulerian cycle if following two conditions are true.
+a) All vertices with non-zero degree are connected. We don’t care about vertices with zero degree because they don’t belong to Eulerian Cycle or Path (we only consider all edges).
+b) All vertices have even degree.
+
+An undirected graph has Eulerian Path if following two conditions are true.
+a) All vertices with non-zero degree are connected. We don’t care about vertices with zero degree because they don’t belong to Eulerian Cycle or Path (we only consider all edges).
+b) If zero or two vertices have odd degree and all other vertices have even degree. Note that only one vertex with odd degree is not possible in an undirected graph (sum of all degrees is always even in an undirected graph)
+
+isEulerian( ){
+																				
+    if( isConnected() == false ) return 0;
+    count vertices with odd degree in cnt
+    if cnt is 0 : eulerian
+    else if cnt is 2: eulerian path
+    
+}
+
+************* generic MST
+GENERIC-MST(G, w)
+1 A ← Ø
+2 while A does not form a spanning tree
+3 do find an edge (u, v) that is safe for A
+4 A ← A U {(u, v)}
+5 return A
+
+A cut (S, V - S) of an undirected graph G = (V, E) is a partition of V. We say that an edge (u, v) in E crosses the cut (S, V - S) if one of its endpoints is in S and the other is in V - S. We say that a cut respects a set A of edges if no edge in A crosses the cut.An edge is a light edge crossing a cut if its weight is the minimum of any edge crossing the cut.
+
+************* kruskal and prim
+
+In Kruskal's algorithm, the set A is a *forest*. The safe edge added to A is always a least-weight edge in the graph that connects *two distinct components*. In Prim's algorithm, the set A forms a *single tree*. The safe edge added to A is always a least-weight edge connecting the tree to a *vertex* not in the tree. so it looks like we are adding edge in kruskal algo while we are adding vertex in prim algo.
+
+MST-KRUSKAL(G, w) --> O( ElogV ) after lot of assumptions
+1 A ← Ø
+2 for each vertex v in V[G]
+3 do MAKE-SET(v)
+4 sort the edges of E into nondecreasing order by weight w
+5 for each edge (u, v) in E, taken in nondecreasing order by weight
+6 	do if FIND-SET(u) ≠ FIND-SET(v)
+7 		then A ← A U {(u, v)}
+8 			UNION(u, v)
+9 return A
+
+MST-PRIM(G, w, r) --> O( ElogV ) after assumptions
+1 for each u in V [G]
+2 do key[u] ← ∞
+3 π[u] ← NIL
+4 key[r] ← 0
+5 Q ← V [G]
+6 while Q ≠ Ø
+7	 do u ← EXTRACT-MIN(Q)
+8		 for each v in Adj[u]
+9			 do if v in Q and w(u, v) < key[v]
+10				 then π[v] ← u
+11				      key[v] ← w(u, v)
+
+Q is min priority queue
+
+at step# 9 key[v] > w(u,v) is correct. it's not key[v] > w(u,v) + key[u]( means distance till previous node plus distance from prev to this node); we are not calculating minimum distance here. key just contains weight of edge from previous node.
+
+A bottleneck spanning tree T of an undirected graph G is a spanning tree of G whose largest edge weight is minimum over all spanning trees of G. A minimum spanning tree is a bottleneck spanning tree.
+
+************* shortest path problems
+single source shortest path 
+single destination shortest path --> reverse the single source shortest path 
+single pair shortest path --> single source shortest path solves this too
+all pair shortest path --> run single source shortest path for each vertex
+
+If there is a negative-weight cycle reachable from s, however,
+shortest-path weights are not well defined. negative weight edge is not a problem but cycles containing negative weights are.
+
+shortest path cannot contain a negative-weight cycle. Nor can it contain a positive-weight cycle, since removing the cycle from the path produces a path with the same source and destination vertices and a lower path weight. so it contains at most |V| - 1 edges.
+
+INITIALIZE-SINGLE-SOURCE(G, s)
+1 for each vertex v in V[G]
+2 	do d[v] ← ∞
+3		 π[v] ← NIL
+4 d[s] <- 0
+
+RELAX(u, v, w)
+1 if d[v] > d[u] + w(u, v)
+2	 then d[v] ← d[u] + w(u, v)
+3		 π[v] ← u
+
+************* Bellman-Ford O(VE) or O( V^2 log(V) )
+Bellman-Ford algorithm returns a boolean value indicating whether or not there is a negative-weight cycle that is reachable from the source. If there is such a cycle, the algorithm indicates that no solution exists. If there is no such cycle, the algorithm produces the shortest paths and their weights.
+
+BELLMAN-FORD(G, w, s)
+1 INITIALIZE-SINGLE-SOURCE(G, s)
+2 for i ← 1 to |V[G]| - 1
+3	 do for each edge (u, v) in E[G]
+4		 do RELAX(u, v, w)
+5 for each edge (u, v) in E[G]
+6	 do if d[v] > d[u] + w(u, v)
+7		 then return FALSE
+8 return TRUE
+
+The idea of step 3 is, step 2 guarantees shortest distances if graph doesn’t contain negative weight cycle. If we iterate through all edges one more time and get a shorter path for any vertex, then there is a negative weight cycle
+
+for undirected graph if there is negative weight edge it means a negative weight cycle so BF will report it; and can't be used. so it will work fine for undirected graph if it contains positive weight edges only.
+
+Like other Dynamic Programming Problems, the algorithm calculate shortest paths in bottom-up manner. It first calculates the shortest distances for the shortest paths which have at-most one edge in the path. Then, it calculates shortest paths with at-nost 2 edges, and so on. After the ith iteration of outer loop, the shortest paths with at most i edges are calculated. There can be maximum |V| – 1 edges in any simple path, that is why the outer loop runs |v| – 1 times.
+
+in case of DAG, By relaxing the edges of a weighted dag (directed acyclic graph) G = (V, E) according to a topological sort of its vertices, we can compute shortest paths from a single source in Θ(V + E) time. edges can be negative.
+
+DAG-SHORTEST-PATHS(G, w, s)
+1 topologically sort the vertices of G
+2 INITIALIZE-SINGLE-SOURCE(G, s)
+3 for each vertex u, taken in topologically sorted order
+4	 do for each vertex v in Adj[u]
+5		 do RELAX(u, v, w)
+
+i think it can work for undireced graph with no negative weight edge. because negative weight edge means a negative weight cycle in graph.
+
+******** longest path in DAG
+The longest path problem for a general graph is not as easy as the shortest path problem because the longest path problem doesn’t have optimal substructure property. but using topological sorting for DAG we can solve it in linear time.
+
+1)Initialize dist[] = {NINF, NINF, ….} and dist[s] = 0 where s is the source vertex. Here NINF means negative infinite.
+2) Create a toplogical order of all vertices.
+3) Do following for every vertex u in topological order.
+………..Do following for every adjacent vertex v of u
+………………if (dist[v] < dist[u] + weight(u, v))
+………………………dist[v] = dist[u] + weight(u, v)
+
+DIJKSTRA works on a weighted, directed graph G = (V, E) for the case in which all edge weights are nonnegative.
+takes O( V^2 + E ) but we try to acheive O( VlgV + E ) by implementing priority queue by fibonacci heap
+
+DIJKSTRA(G, w, s)
+1 INITIALIZE-SINGLE-SOURCE(G, s)
+2 S ← Ø
+3 Q ← V[G]
+4 while Q ≠ Ø
+5	 do u ← EXTRACT-MIN(Q)
+6		 S ← S U {u}
+7		 for each vertex v in Adj[u]
+8			 do RELAX(u, v, w)
+
+why dijkstra doesn't work with negative weight edges. Because it assumes that previous solution was optimised one and doesn't considers more shorter path possible if it was already existing.
+
+            |---------------- | 0  
+            |                 |      
+            |    1       1     
+        eg: A ----> B ---->   C
+           99|       |^
+            D------- (-300)
+
+it won't consider A to B again as it assumes that shortest path from A to B is 1 and is not further optimised to -201  after choosing D.
+
+i think dijkstra can be used to find shortest path in undirected graph but it should not contain negative weight edge and vertex already visited should not be visited again( or put in priority queue ). because undirected graph is just a directed graph with cycle.
+
+Each vertex vi in the graph, for i = 1, 2,..., n, corresponds to one of the n unknown variables xi . Each directed edge in the graph corresponds to one of the m inequalities involving two unknowns. this inequality can be solved to find shortest paths in graphs.
+
+NOTE: priority_queue in STL doesn't provide reduce key so either use set or workaround like maintaining two keys with array of visited nodes
+http://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
+
+************* all pair shortest path
+dijkstra for each vertex : O( V ^ 3)
+bellman ford for negative edges : O( V ^ 4)
+
+PRINT-ALL-PAIRS-SHORTEST-PATH(Π, i, j)
+1 if i = j
+2	 then print i
+3 	 else if πij = NIL
+4	 	then print "no path from" i "to" j "exists"
+5	 	else PRINT-ALL-PAIRS-SHORTEST-PATH(Π, i, πij)
+6			 print j
+
+W = (wij), we now compute a series of matrices L(1), L(2),..., L(n-1), where for m = 1, 2,..., n - 1
+
+EXTEND-SHORTEST-PATHS(L, W)
+1 n ← rows[L]
+2 let L' = l'(ij) be an n × n matrix
+3 for i ← 1 to n
+4	 do for j ← 1 to n
+5 		do l'(ij) ← INF	
+6			 for k ← 1 to n
+7				do l'(ij) ← min( l'(ij), l(ik) + w(kj) ) 
+8 return L′
+
+SLOW-ALL-PAIRS-SHORTEST-PATHS(W)
+1 n ← rows[W]
+2 L(1)  ← W
+3 for m ← 2 to n - 1
+4	 do L(m) ← EXTEND-SHORTEST-PATHS(L(m-1), W)
+5 return L(n-1)
+
+above does in O( V^4 ), we can improve it because
+L(2) = L(1).W, L(3) = L(2).W, L(4) = L(3).W
+can be replaced by
+L(2) =W.W, L(4) = W^2.W^2
+
+FASTER-ALL-PAIRS-SHORTEST-PATHS(W)
+1 n ← rows[W]
+2 L(1) ← W
+3 m ← 1
+4 while m < n - 1
+5	 do L(2m) ← EXTEND-SHORTEST-PATHS(L(m), L(m))
+6		 m ← 2m
+7 return L(m)
+
+------- Floyd Warshall
+negative-weight edges may be present, but we assume that there are no negative-weight cycles. O( V^3 )
+
+FLOYD-WARSHALL(W)
+1 n ← rows[W]
+2 D(0) ← W
+3 for k ← 1 to n
+4	 do for i ← 1 to n
+5		 do for j ← 1 to n
+6			 do d(ij) of k ← min( d(ij) of k-1, d(ik) of k-1 + d(kj) of k-1 )
+7 return D(n)
+
+we will iterate while keeping vertex 1,2,3... as intermediate vertex and finding shorter path
+
+The reach-ability matrix is called transitive closure of a graph. we want to know if there is a path of any length from vertex i to j.
+
+for reach-ability matrix optimised step can be:
+reach[i][j] = reach[i][j] || (reach[i][k] && reach[k][j]);
+
+SLOW-ALL-PAIRS-SHORTEST-PATHS(W) uses EXTEND-SHORTEST-PATHS(L, W) which doesn't uses the information computed in previous step. so it takes O( v^4 ). but floyd warshall uses previous info and does it in O( V^3 ).
+
+take care when checking condition:
+#define INF INT_MAX
+..........................
+if (dist[i][k] != INF && dist[k][j] != INF && dist[i][k] + dist[k][j] < dist[i][j])
+    dist[i][j] = dist[i][k] + dist[k][j];
+
+here we need to check for INF before addition, other wise overflow can occur
+
+******* johnson's algo for all pair shortest path problem
+The idea of Johnson’s algorithm is to re-weight all edges and make them all positive, then apply Dijkstra’s algorithm for every vertex. we can be tempted to add minimum weight edge's weight to each vertex but this doesn't works. because after adding weight w to each edge shortest path doesn't remain same.
+
+eg: A 1 B 1 C 1 D
+    |           |
+     ----  4 ---
+
+If there are multiple paths from a vertex u to v, then all paths must be increased by same amount, so that the shortest path remains the shortest in the transformed graph. The idea of Johnson’s algorithm is to assign a weight to every vertex. 
+
+1) Let the given graph be G. Add a new vertex s to the graph, add edges from new vertex to all vertices of G. Let the modified graph be G’.
+2) Run Bellman-Ford algorithm on G’ with s as source. Let the distances calculated by Bellman-Ford be h[0], h[1], .. h[V-1]. If we find a negative weight cycle, then return. Note that the negative weight cycle cannot be created by new vertex s as there is no edge to s. All edges are from s.
+3) Reweight the edges of original graph. For each edge (u, v), assign the new weight as “original weight + h[u] – h[v]“.
+4) Remove the added vertex s and run Dijkstra’s algorithm for every vertex.
+
+reweighting works and is always true about h[] values as they are shortest distances. h[v] <= h[u] + w(u, v) so “original weight + h[u] – h[v]“ is always positive quantity. now all edges are positive dijkstra can be applied.
+
+The time complexity of Johnson's algorithm O( V^2logV + VE ) becomes same as Floyd Warshell when the graphs is complete (For a complete graph E = O(V^2). But for sparse graphs, the algorithm performs much better than Floyd Warshell.
+
+********* Bipartite graph
+A Bipartite Graph is a graph whose vertices can be divided into two independent sets, U and V such that every edge (u, v) either connects a vertex from U to V or a vertex from V to U. In other words, for every edge (u, v), either u belongs to U and v to V, or u belongs to V and v to U. We can also say that there is no edge that connects vertices of same set.
+
+Following is a simple algorithm to find out whether a given graph is Birpartite or not using Breadth First Search (BFS).
+1.	Assign RED color to the source vertex (putting into set U).
+2.	Color all the neighbors with BLUE color (putting into set V).
+3.	Color all neighbor’s neighbor with RED color (putting into set U).
+4.	This way, assign color to all vertices such that it satisfies all the constraints of m way coloring problem where m = 2.
+5. While assigning colors, if we find a neighbor which is colored with same color as current vertex, then the graph cannot be colored with 2 vertices (or graph is not Bipartite)
+
+It can also be solved using DFS instead of BFS in 2 color matching algo.
+
+It can also be solved by checking whether the graph is 2-colorable or not using backtracking algorithm m coloring problem.
+
+******** Maximum bipartite matching:
+
+A matching in a Bipartite Graph is a set of the edges chosen in such a way that no two edges share an endpoint. A maximum matching is a matching of maximum size (maximum number of edges). In other words, a matching is maximum if any edge is added to it, it is no longer a matching. There can be more than one maximum matchings for a given Bipartite Graph.
+
+There are many real world problems that can be formed as Bipartite Matching. For example, consider the following problem:
+M job applicants and N jobs. we need to find an assignment of jobs to applicants in such that as many applicants as possible get jobs. The graph is bipartite.
+
+it is similar to finding one to one function in DML.
+
+above problem can be solved by converting it into max-flow problem and applying ford-fulkerson method.
+we add a source and add edges from source to all applicants. Similarly, add edges from all jobs to sink. The capacity of every edge is marked as 1 unit.
+
+
+
+Hamiltonian Path in an undirected graph is a path that visits each vertex exactly once. A Hamiltonian cycle (or Hamiltonian circuit) is a Hamiltonian Path such that there is an edge (in graph) from the last vertex to the first vertex of the Hamiltonian Path.
+
+we can solve it using backtracking,Create an empty path array and add vertex 0 to it. Add other vertices, starting from the vertex 1. Before adding a vertex, check for whether it is adjacent to the previously added vertex and not already added. If we find such a vertex, we add the vertex as part of the solution. If we do not find a vertex then we return false.
+
+********* travelling salesman problem
+Given a set of cities and distance between every pair of cities, the problem is to find the shortest possible route that visits every city exactly once and returns to the starting point.
+
+Note the difference between Hamiltonian Cycle and TSP. The Hamiltoninan cycle problem is to find if there exist a tour that visits every city exactly once. Here we know that Hamiltonian Tour exists (because the graph is complete) and in fact many such tours exist, the problem is to find a minimum weight Hamiltonian Cycle.
+
+problem is NP Hard. So no polynomial time solution exists for this problem. We can solve using dynamic programming in O( n^2 * 2^n ) time.
+
+For every other vertex i (other than 1), we find the minimum cost path with 1 as the starting point, i as the ending point and all vertices appearing exactly once. Let the cost of this path be cost(i), the cost of corresponding Cycle would be cost(i) + dist(i, 1) where dist(i, 1) is the distance from i to 1. Finally, we return the minimum of all [cost(i) + dist(i, 1)] values.
+We start with all subsets of size 2 and calculate C(S, i) for all subsets where S is the subset, then we calculate C(S, i) for all subsets S of size 3 and so on. Note that 1 must be present in every subset.
+
+If size of S is 2, then S must be {1, i},
+ C(S, i) = dist(1, i) 
+Else if size of S is greater than 2.
+ C(S, i) = min { C(S-{i}, j) + dis(j, i)} where j belongs to S, j != i and j != 1.
+
+********* approximate solution for TSP
+The approximate algorithms work only if the problem instance satisfies Triangle-Inequality.
+
+dis(i, j) is always less than or equal to dis(i, k) + dist(k, j).2-approx algo says that When the cost function satisfies the triangle inequality, we can design an approximate algorithm for TSP that returns a tour whose cost is never more than twice the cost of an optimal tour.
+
+1) Let 1 be the starting and ending point for salesman.
+2) Construct MST from with 1 as root using Prim’s Algorithm.
+3) List vertices visited in preorder walk of the constructed MST and add 1 at the end.
+
+********* finding number of islands problem
+similar to connected components problem in graph
+but can be solved easily using DFS only
+if given Matrix we can apply DFS and increase counter for each DFS tree traversal.
+
+technique is to use
+static int rowNbr[] = {-1, -1, -1, 0, 0, 1, 1, 1};
+static int colNbr[] = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+A cell in 2D matrix can be connected to 8 neighbors. So, unlike standard DFS(), where we recursively call for all adjacent vertices, here we can recursive call for 8 neighbors only.
+
+// Recur for all connected neighbours
+    for (int k = 0; k < 8; ++k)
+        if (isSafe(M, row + rowNbr[k], col + colNbr[k], visited) )
+            DFS(M, row + rowNbr[k], col + colNbr[k], visited);
+
+isSafe() checks for bounary conditions and already visited or not...
+int isSafe(int M[][COL], int row, int col, bool visited[][COL])
+{
+    return (row >= 0) && (row < ROW) &&     // row number is in range
+           (col >= 0) && (col < COL) &&     // column number is in range
+           (M[row][col] && !visited[row][col]); // value is 1 and not yet visited
+}
+
+************** cycle detection in directed graph
+
+use dfs; if there is a back edge => cycle
+
+************** cycle detection in undirected graph
+disjoint set can be used to determine if an undirected graph contains a cycle O( ElogV )
+
+Like directed graphs, we can use DFS to detect cycle in an undirected graph in O(V+E) time. We do a DFS traversal of the given graph. For every visited vertex ‘v’, if there is an adjacent ‘u’ such that u is already visited and u is not parent of v, then there is a cycle in graph. If we don’t find such an adjacent for any vertex, we say that there is no cycle. The assumption of this approach is that there are no parallel edges between any two vertices. it is same as detecting back edge in directed graph but in undirected graph back edge is already present as A -> B as well as B -> A. so we need to check that u is not parent of v.
+
+************** topological sorting
+in topological sorting we can pass stack to dfs. which pushes each visited node to stack.
+
+
+
+********* graph coloring
+vertex coloring, edge coloring, face coloring
+The smallest number of colors needed to color a graph G is called its chromatic number.
+there is no efficient algorithm available for coloring a graph with minimum number of colors as the problem is a known NP Complete problem. There are approximate algorithms to solve the problem though.
+following algo guarantees an upper bound on the number of colors. The basic algorithm never uses more than d+1 colors where d is the maximum degree of a vertex in the given graph.
+
+
+************** maximum flow problem
+// refer geeks for geeks
+
+The capacity constraint simply says that the flow from one vertex to another must not exceed the given capacity.
+Skew symmetry is a notational convenience that says that the flow from a vertex u to a vertex v is the negative of the flow in the reverse direction.
+The flow-conservation property says that the total flow out of a vertex other than the source or sink is 0.
+
+Ford-fulkerson algo: O( max_flow * E )
+The following is simple idea of Ford-Fulkerson algorithm:
+1) Start with initial flow as 0.
+2) While there is a augmenting path from source to sink. 
+           Add this path-flow to flow.
+3) Return flow.
+
+Residual Graph of a flow network is a graph which indicates additional possible flow. If there is a path from source to sink in residual graph, then it is possible to add flow. Every edge of a residual graph has a value called residual capacity which is equal to original capacity of the edge minus current flow. 
+
+To find an augmenting path, we can either do a BFS or DFS of the residual graph. BFS also builds parent[] array. Using the parent[] array, we traverse through the found path and find possible flow through this path by finding minimum residual capacity along the path. We later add the found path flow to overall flow.
+We subtract path flow from all edges along the path and we add path flow along the reverse edges 
+
+NOTE: take care that we don't take minimum of all edges and then subtract this from all edges. We take flow from src to dst and subtract this flow from this path in residual path; in case of reverse edge we add this to edge.
+
+            u = parent[v];
+            rGraph[u][v] -= path_flow;
+            rGraph[v][u] += path_flow;
+
+************** minimum cut problem
+In a flow network, an s-t cut is a cut that requires the source ‘s’ and the sink ‘t’ to be in different subsets, and it consists of edges going from the source’s side to the sink’s side. The capacity of an s-t cut is defined by the sum of capacity of each edge in the cut-set.
+
+The max-flow min-cut theorem states that in a flow network, the amount of maximum flow is equal to capacity of the minimum cut.
+
+if we block these edges we can't go from source to sink.
+
+1) Run Ford-Fulkerson algorithm and consider the final residual graph.
+2) Find the set of vertices that are reachable from source in the residual graph.
+3) All edges which are from a reachable vertex to non-reachable vertex are minimum cut edges. Print all such edges.
+
+for step 3:
+    for (int i = 0; i < V; i++)
+      for (int j = 0; j < V; j++)
+         if (visited[i] && !visited[j] && graph[i][j])
+              cout << i << " - " << j << endl;
+
+
+when finding maximum flow there are some edges that become with flow negative, these edges can serve as minimum cut.So in last residual graph these edges from reachable vertex from source now become negative weight edge to non reachable vertex.
+
+********* maximum number of edge disjoint paths between two vertices
+
+Two paths are said edge disjoint if they don’t share any edge.
+This problem can be solved by reducing it to maximum flow problem. Following are steps.
+1) Consider the given source and destination as source and sink in flow network. Assign unit capacity to each edge.
+2) Run Ford-Fulkerson algorithm to find the maximum flow from source to sink.
+3) The maximum flow is equal to the maximum number of edge-disjoint paths.
+
+When we run Ford-Fulkerson, we reduce the capacity by a unit. Therefore, the edge can not be used again. So the maximum flow is equal to the maximum number of edge-disjoint paths.
+
+************ concepts ***************
+graph problem can be solved using concepts: dfs, bfs, minimum spanning tree, shortest path, topological sorting, maximum flow with residual graph concept, indegree/outdegree, detect cycle in directed/undirected graph, is connected in directed/undirected graph.
+generally maximum number of something is calculated using max flow ford fulkerson algo
+
+************ using INT_MAX *****
+if dist[u] is INT_MAX, then dist[u] + w < dist[v] is possible because of overflow. so check: 
+if( dist[u] != INT_MAX && dist[u] + w < dist[v] ){
+}
+
+******* 4 color approx ******
+graph can be colored with 2 colors if its bi-partitte means doesn't have odd cycle
+else it can be colored with 3 colors but in some special cases 4 colors are required
+
+************ questions ***************
+
+

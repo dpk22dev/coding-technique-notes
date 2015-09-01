@@ -1,0 +1,111 @@
+***** declaring the constructor private means class can't be inherited and can't be instantiated
+
+***** finally block
+even when we attempt to exit within the try block (normal exit, return, continue, break or any exception), the finally block will still be executed.
+
+There are some cases in which the finally block will not get executed: if the virtual machine exits in between try/catch block execution, or the thread which is executing try/catch block gets killed.
+
+Finalize is the method that the JVM runs before running the garbage collector.
+
+***** diff b/w c++ and java template from CCI book
+c++ 
+java
+Parameters can be any type or integral
+value.
+Parameters can only be reference types
+(not primitive types).
+
+Objects of a class with different type pa-rameters are different types at run time.Type parameters are erased when com-piled; objects of a class with different type parameters are the same type at run time.
+
+Does not support wildcards. Instead, re- turn types are often available as nested typedefs.
+Supports wildcard as type parameter if it is only used once.
+
+Static variables are not shared between classes of different type parameters.
+Static variables are shared between instanc-es of a classes of different type parameters.
+
+***** reflection in java
+java.lang.reflect package is used to get information about methods and fields present inside the class at run time.
+
+Creating a new instance of a class.
+
+Getting and setting the object fields directly by getting field reference, regardless of
+what the access modifier is.
+
+***** operator overloading is not possible in java as is in C++
+
+***** diff b/w c++ and java *****
+good ref at: http://en.wikipedia.org/wiki/Comparison_of_Java_and_C%2B%2B
+
+C++ supports pointers whereas Java does not pointers. But when many programmers questioned how you can work without pointers, the promoters began saying "Restricted pointers.” So we can say java supports Restricted pointers.
+
+At compilation time Java Source code converts into byte code .The interpreter execute this byte code at run time and gives output .Java is interpreted for the most part and hence platform independent. C++ run and compile using compiler which converts source code into machine level languages so c++ is plate from dependents
+
+Java is platform independent language but c++ is depends upon operating system machine etc. C++ source can be platform independent (and can work on a lot more, especially embedeed, platforms), although the generated objects are generally platofrom dependent but there is clang for llvm which doesn't have this restriction.
+
+Java uses compiler and interpreter both and in c++ their is only compiler
+
+C++ supports operator overloading multiple inheritance but java does not.
+
+C++ is more nearer to hardware then Java
+
+Everything (except fundamental types) is an object in Java (Single root hierarchy as everything gets derived from java.lang.Object).
+
+Java does is a similar to C++ but not have all the complicated aspects of C++ (ex: Pointers, templates, unions, operator overloading, structures etc..) Java does not support conditional compile (#ifdef/#ifndef type).
+
+Thread support is built-in Java but not in C++. C++11, the most recent iteration of the C++ programming language does have Thread support though.
+
+Internet support is built-in Java but not in C++. However c++ has support for socket programming which can be used.
+
+Java does not support header file, include library files just like C++ .Java use import to include different Classes and methods.
+
+Java does not support default arguments like C++.
+
+There is no scope resolution operator :: in Java. It has . using which we can qualify classes with the namespace they came from.
+
+There is no goto statement in Java.
+
+Exception and Auto Garbage Collector handling in Java is different because there are no destructors into Java.
+
+Java has method overloading, but no operator overloading just like c++.
+
+The String class does use the + and += operators to concatenate strings and String expressions use automatic type conversion,
+
+Java is pass-by-value.
+
+Java does not support unsigned integer.
+
+
+***** does java support pointers *****
+Java supports what it calls "references". References act a lot like pointers in C/C++-like languages. They don't act the same way "references" work in those languages.
+
+The major differences between a pointer in C and a reference in Java are:
+
+You can't do pointer arithmetic in Java (i.e. you can't "add" or "subtract" from a Java reference, you can only dereferencere it or compare it with another one).
+You can't cast it to an incompatible type: Java is strongly type-safe, you can't "re-interpret" the bytes in memory as some other object.
+
+**** static(compile time) and dynamic(runtime) polymorphism
+method overloading within class -> static(compile time)
+which method to call is determined by compiler
+eg: sum(a,b) and sum(a,b,c)
+
+method overriding in classes -> dynamic(runtime)
+JVM decides which method to call
+eg: move() method in animal class and move() method in dog 
+
+*** diff b/w errors and exceptions in java ***
+or checked and unchecked exceptions
+checked exception: is exception from program can recover and its good to handle them. eg: filenotfoundexception
+unchecked exception: exception from whcih program can't recover and its good not to handle them... outofmemory , stackoverflow exception
+
+http://stackoverflow.com/questions/5813614/what-is-difference-between-errors-and-exceptions
+
+*** multithreading in java ***
+http://www.tutorialspoint.com/java/java_multithreading.htm
+
+read links below http://www.tutorialspoint.com/java/java_multithreading.htm
+
+
+
+
+
+

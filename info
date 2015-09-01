@@ -1,0 +1,113 @@
+***** php
+php is executed on server side. all php code is parsed and striped and converted into html which is sent to client.
+in php we can get/set cookies.
+have conditional statements, loops, switches etc
+read/write to file in c style
+have string functions 
+we can create functions whcich can return values
+
+has c++ like object-orientation, we can create class, object of class, have pointers to objects, 
+can have private, protected and public members
+can have constructors and destructors
+
+can connect to database; store, retreive, update data from there
+for dealing with mysql we can use mysqli_ functions like: mysqli_connect(), mysqli_connect_errno(), mysqli_query(), mysqli_close() etc...
+
+similarly for odbc we use odbc_ functions like:
+odbc_connect(), odbc_exec(), odbc_fetch_row(), odbc_close()
+
+***** css
+CSS, is a simple design language intended to
+simplify the process of making web pages presentable.
+CSS handles the look and feel part of a web page. Using CSS, you can control the color of the text, the style of fonts, the spacing between paragraphs, how columns are sized and laid out, what background images or colors are used, as well as a variety of other effects.
+
+. for class
+# for id same as jquery
+selector { property: value }
+
+can be applied to large range of selectors like class, id, tag, attributes etc.
+
+multiple selectors with multiple rules:
+h1, h2, h3 {
+color: #36C;
+font-weight: normal;
+letter-spacing: .4em;
+margin-bottom: 1em;
+text-transform: lowercase;
+}
+
+we can have internal css using  <style> attribute; external css using <link>; @import
+we can set color, background-color, backgound-image, fond-style, size, wight, text-indentation, alignment, table etc...
+
+***** TBS
+tinyButStrong is php class useful to develop an application in a clean way, separating PHP scripts and XML/HTML/Text files. With TBS, the files are generated dynamically by merging a template with data. It is called a Template Engine.
+
+It allows you to merge templates with your PHP variables or your MySQL, PostgreSQL, or SQLite.
+
+in php we can use:
+
+include_once('tbs_class.php');
+$TBS = new clsTinyButStrong;
+$TBS->LoadTemplate('template.htm');
+$list = array('X','Y','Z');
+$TBS->MergeBlock('blk', $list);
+$TBS->Show();
+
+here template.htm is simple html file with templates.
+<table>
+  <tr><td>[blk.val;block=tr]</td></tr>
+</table>
+
+on exevution of php template is converted into proper html file.
+
+there are 5 other functions available also.
+
+***** javascript
+is executed at client side
+has local vars in functions and global outside in page.
+has conditional statements, loops
+create functions, call functions
+has try-catch statements
+alert(), confirm() for dialog box, prompt(), 
+has document and window objects; we can used its members and methods
+onerror() event handler is fired when any error or exception occurs in page
+used for form validation, data format validation
+navigator object to use methods on browser 
+String object for string & wrapper methods, Array object, Date object, Math , RegExp object
+
+***** jquery
+jQuery is a lightweight, "write less, do more", JavaScript library.
+$(selector).action()
+Event handlers are methods that are called when "something happens" in HTML.
+chaining and callback is possible in jquery
+we can apply text(), html(), val() on objects
+on getting data rather than loading whole page jquery with AJAX can be used to load data from a resource
+other frameworks might also use $ for shortcut; to remove hold of $ we can use jquery noConflict() function.
+
+*** design patterns ****
+http://www.tonymarston.net/php-mysql/design-patterns.html#factory.method
+
+http://www.ibm.com/developerworks/rational/tutorials/ar-designpat1/
+
+http://www.tutorialspoint.com/design_pattern/	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
