@@ -248,6 +248,10 @@ while using c++11 ; it gives error for typeof gnuC++ recognizes it
 
 its good to typedef datatype and its iterator before hand
 
+The thing is that cin>> reads one word and stops immediately, thus leaving the '\n' from pressing Enter in the stream. 
+This '\n' is then found by getline. 
+It would be good to have a cin.ignore() after every cin>> so that there is never any rubbish in the stream.
+
 ******
 operator overloading
 friend function
